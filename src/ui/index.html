@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>esencIA | Sintesis de vídeo académico</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Work+Sans:wght@300;400;500;600&family=Inter:wght@400;500;600&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <style>
+        :root {
+            --background: #F5F5F7;
+            --surface: #ffffff;
+            --surface-container-low: #ebebeb;
+            --surface-container-high: #e0e0e0;
+            --surface-container-highest: #d6d6d6;
+            --primary: #1A237E;
+            --primary-fixed: #e0e0ff;
+            --on-primary-fixed: #1A237E;
+            --secondary: #717494;
+            --tertiary: #5C1000;
+            --tertiary-container: #ffd2c7;
+            --on-tertiary-container: #400800;
+            --on-surface: #121212;
+            --on-surface-variant: #4a4a4a;
+            --outline-variant: #aaaaaa;
+            --error: #ba1a1a;
+            --gradient-start: #1A237E;
+            --gradient-end: #5C1000;
+            --header-bg: #F5F5F7;
+            --header-text: #121212;
+            --icon-hover: #d6d6d6;
+        }
+
+        .dark {
+            --background: #121212;
+            --surface: #201f1f;
+            --surface-container-low: #1c1b1b;
+            --surface-container-high: #2a2a2a;
+            --surface-container-highest: #353534;
+            --primary: #3F51B5;
+            --primary-fixed: #dee0ff;
+            --on-primary-fixed: #00105c;
+            --secondary: #807D8B;
+            --tertiary: #009688;
+            --tertiary-container: #003731;
+            --on-tertiary-container: #2da99a;
+            --on-surface: #e5e2e1;
+            --on-surface-variant: #c6c5d4;
+            --outline-variant: #454652;
+            --error: #ffb4ab;
+            --gradient-start: #bac3ff;
+            --gradient-end: #072189;
+            --header-bg: #131313;
+            --header-text: #e5e2e1;
+            --icon-hover: rgba(53, 53, 52, 0.5);
+        }
+
+        body {
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        .editorial-gradient {
+            background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
+        }
+
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--background);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--surface-container-highest);
+            border-radius: 10px;
+        }
+
+        .prose h1,
+        .prose h2,
+        .prose h3 {
+            color: var(--on-surface);
+            font-weight: bold;
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .prose p {
+            margin-bottom: 1rem;
+        }
+
+        .prose ul {
+            list-style-type: disc;
+            padding-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .prose code {
+            background: var(--surface-container-highest);
+            padding: 0.2rem 0.4rem;
+            border-radius: 0.25rem;
+            font-family: monospace;
+        }
+
+        .prose pre {
+            background: var(--surface-container-low);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            margin-bottom: 1rem;
+        }
+
+        #drop-zone.dragover {
+            background-color: var(--surface-container-highest);
+            border-color: var(--primary);
+        }
+    </style>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "background": "var(--background)",
+                        "surface": "var(--surface)",
+                        "surface-container-low": "var(--surface-container-low)",
+                        "surface-container-high": "var(--surface-container-high)",
+                        "surface-container-highest": "var(--surface-container-highest)",
+                        "primary": "var(--primary)",
+                        "primary-fixed": "var(--primary-fixed)",
+                        "on-primary-fixed": "var(--on-primary-fixed)",
+                        "secondary": "var(--secondary)",
+                        "tertiary": "var(--tertiary)",
+                        "tertiary-container": "var(--tertiary-container)",
+                        "on-tertiary-container": "var(--on-tertiary-container)",
+                        "on-surface": "var(--on-surface)",
+                        "on-surface-variant": "var(--on-surface-variant)",
+                        "outline-variant": "var(--outline-variant)",
+                        "error": "var(--error)"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Work Sans"],
+                        "label": ["Inter"]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-background text-on-surface font-body selection:bg-primary-container selection:text-primary">
+    <!-- Aviso de Ollama Desconectado -->
+    <div id="ollama-warning" class="hidden bg-error/10 border-b border-error/20 py-2 px-8 flex justify-between items-center transition-all duration-500">
+        <div class="flex items-center gap-2 text-error text-xs font-label">
+            <span class="material-symbols-outlined text-sm">warning</span>
+            <span>Ollama no detectado. Abre la aplicación de Ollama para procesar videos.</span>
+        </div>
+        <a href="https://ollama.com" target="_blank" class="text-[10px] uppercase tracking-widest font-bold text-primary hover:underline">Descargar Ollama</a>
+    </div>
+
+    <header class="w-full top-0 sticky z-50 transition-colors" style="background-color: var(--header-bg);">
+        <div class="flex justify-between items-center px-8 py-4 max-w-[1440px] mx-auto w-full">
+            <div class="font-headline text-lg font-bold tracking-widest transition-colors"
+                style="color: var(--header-text);">esencIA</div>
+            <div class="flex items-center gap-2">
+                <div id="settings-btn"
+                    class="p-2 text-primary transition-colors duration-300 cursor-pointer active:scale-95 rounded-full"
+                    style="background-color: transparent;" onmouseover="this.style.backgroundColor='var(--icon-hover)'"
+                    onmouseout="this.style.backgroundColor='transparent'">
+                    <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">settings</span>
+                </div>
+            </div>
+        </div>
+    </header>
+    <main class="max-w-[1200px] mx-auto px-6 py-12">
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-8 mb-16">
+            <div class="md:col-span-6 group cursor-pointer" id="drop-zone-container">
+                <div id="drop-zone"
+                    class="h-[340px] w-full bg-surface-container-high rounded-xl border-2 border-dashed border-outline-variant flex flex-col items-center justify-center transition-all duration-500 hover:bg-surface-container-highest hover:border-primary relative overflow-hidden">
+                    <div
+                        class="absolute inset-0 editorial-gradient opacity-0 group-hover:opacity-5 transition-opacity duration-500 pointer-events-none">
+                    </div>
+                    <div class="bg-surface p-5 rounded-full mb-6 pointer-events-none">
+                        <span class="material-symbols-outlined text-primary text-5xl">upload_file</span>
+                    </div>
+                    <h3 class="font-headline text-xl font-semibold mb-2 pointer-events-none">Arrastra y suelta</h3>
+                    <p class="text-on-surface-variant text-sm font-label tracking-wide pointer-events-none mb-4">El
+                        vídeo debe estar en formato MP4 (Max 2GB)</p>
+                </div>
+            </div>
+            <div class="md:col-span-6">
+                <div class="h-[340px] bg-surface-container-low rounded-xl p-6 flex flex-col">
+                    <h4
+                        class="font-headline text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-4 flex items-center gap-2 shrink-0">
+                        <span class="w-1.5 h-1.5 rounded-full bg-tertiary"></span> Registro de actividad
+                    </h4>
+                    <div id="progress-container" class="hidden mb-4 shrink-0 transition-opacity">
+                        <div class="flex justify-between text-xs text-on-surface-variant mb-1 font-label">
+                            <span id="progress-status">Procesando...</span>
+                            <span id="progress-percent">0%</span>
+                        </div>
+                        <div class="w-full bg-surface-container-highest rounded-full h-1.5 overflow-hidden">
+                            <div id="progress-fill"
+                                class="editorial-gradient h-1.5 rounded-full transition-all duration-300"
+                                style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <div id="process-logs" class="flex-grow space-y-5 overflow-y-auto pr-2">
+                        <!-- Logs dynamically appended here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <section class="bg-surface-container-low rounded-xl p-10 md:p-16 relative overflow-hidden shadow-2xl">
+            <div class="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
+                <span class="material-symbols-outlined text-9xl">auto_stories</span>
+            </div>
+            <div class="max-w-[800px] mx-auto relative z-10">
+                <header class="mb-12 border-b border-outline-variant pb-12 text-center md:text-left">
+                    <div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
+                        <div></div>
+                        <div class="flex flex-col items-center md:items-end">
+                            <span
+                                class="text-on-surface-variant font-label text-[10px] uppercase tracking-tighter">Fecha
+                                de procesamiento</span>
+                            <span id="stats-date" class="text-on-surface font-body font-medium">Esperando...</span>
+                        </div>
+                    </div>
+                </header>
+                <div class="space-y-12">
+                    <div>
+                        <h2 class="font-headline text-2xl font-bold text-on-surface mb-6 flex items-center gap-3">
+                            <span class="text-primary material-symbols-outlined">analytics</span>
+                            Resumen ejecutivo
+                        </h2>
+                        <div id="synthesis-content"
+                            class="text-lg text-on-surface-variant leading-relaxed font-light prose dark:prose-invert max-w-none">
+                            Esperando síntesis...
+                        </div>
+                    </div>
+
+                    <div
+                        class="pt-12 border-t border-outline-variant flex flex-col md:flex-row items-center justify-between gap-8">
+                        <!-- Botones de descarga eliminados por automatización -->
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal de configuraciones -->
+    <div id="settings-modal"
+        class="fixed inset-0 z-[100] flex items-center justify-center bg-[#131313]/60 opacity-0 pointer-events-none transition-opacity duration-300">
+        <div class="bg-surface-container-low rounded-2xl w-[400px] p-8 shadow-2xl scale-95 transition-transform duration-300"
+            id="settings-card">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="font-headline text-xl font-bold text-on-surface">Configuraciones</h2>
+                <div id="close-settings-btn"
+                    class="cursor-pointer text-on-surface-variant hover:text-on-surface transition-colors p-1">
+                    <span class="material-symbols-outlined">close</span>
+                </div>
+            </div>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="block font-label text-xs uppercase tracking-widest text-on-surface-variant mb-2">Tema
+                        de la interfaz</label>
+                    <select id="theme-selector"
+                        class="w-full bg-surface-container-high border border-outline-variant rounded-lg p-3 text-on-surface font-body outline-none focus:border-primary transition-colors cursor-pointer appearance-none">
+                        <option value="system">Tema del Sistema</option>
+                        <option value="light">Modo Claro</option>
+                        <option value="dark">Modo Oscuro</option>
+                    </select>
+                </div>
+                <div class="mt-6">
+                    <label
+                        class="block font-label text-xs uppercase tracking-widest text-on-surface-variant mb-2">Modelo
+                        LLM (Ollama)</label>
+                    <select id="model-name-input"
+                        class="w-full bg-surface-container-high border border-outline-variant rounded-lg p-3 text-on-surface font-body outline-none focus:border-primary transition-colors cursor-pointer appearance-none">
+                    </select>
+                    <p class="text-[10px] text-on-surface-variant mt-2">Selecciona un modelo detectado en tu servidor
+                        local.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript" src="qrc:///qtwebchannel/qwebchannel.js"></script>
+    <script>
+        var backend = null;
+        let currentThemePreference = "system";
+
+        function applyVisualThemeState(isDark) {
+            if (isDark) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        }
+
+        function applyThemePreference(pref) {
+            currentThemePreference = pref;
+            let isDark = false;
+            if (pref === 'system') {
+                isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+            } else {
+                isDark = (pref === 'dark');
+            }
+            applyVisualThemeState(isDark);
+        }
+
+        applyThemePreference('system');
+
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+            if (currentThemePreference === 'system') {
+                applyVisualThemeState(e.matches);
+            }
+        });
+
+        document.addEventListener("DOMContentLoaded", function () {
+            var dateSpan = document.getElementById("stats-date");
+            if (dateSpan) {
+                dateSpan.innerText = new Date().toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' });
+            }
+
+            const modal = document.getElementById('settings-modal');
+            const toggleModal = (show) => {
+                if (show) {
+                    modal.classList.remove('opacity-0', 'pointer-events-none');
+                    document.getElementById('settings-card').classList.remove('scale-95');
+                } else {
+                    modal.classList.add('opacity-0', 'pointer-events-none');
+                    document.getElementById('settings-card').classList.add('scale-95');
+                }
+            };
+
+            document.getElementById('settings-btn').addEventListener('click', () => toggleModal(true));
+            document.getElementById('close-settings-btn').addEventListener('click', () => toggleModal(false));
+
+            document.getElementById('theme-selector').addEventListener('change', function (e) {
+                applyThemePreference(e.target.value);
+                if (backend) backend.save_theme_preference(e.target.value);
+            });
+
+            document.getElementById('model-name-input').addEventListener('change', function (e) {
+                if (backend) backend.save_model_name(e.target.value);
+            });
+
+            if (typeof QWebChannel !== 'undefined') {
+                new QWebChannel(qt.webChannelTransport, function (channel) {
+                    backend = channel.objects.backend;
+
+                    backend.get_theme_preference(function (pref) {
+                        applyThemePreference(pref);
+                        document.getElementById('theme-selector').value = pref;
+                    });
+
+                    backend.get_ollama_models(function (modelsList) {
+                        var selector = document.getElementById('model-name-input');
+                        selector.innerHTML = '';
+                        backend.get_model_name(function (currentModel) {
+                            if (!modelsList || modelsList.length === 0) {
+                                var opt = document.createElement('option');
+                                opt.value = currentModel;
+                                opt.innerText = currentModel + " (Ollama inactivo)";
+                                selector.appendChild(opt);
+                            } else {
+                                var hasCurrent = false;
+                                modelsList.forEach(m => {
+                                    var opt = document.createElement('option');
+                                    opt.value = m;
+                                    opt.innerText = m;
+                                    selector.appendChild(opt);
+                                    if (m === currentModel) hasCurrent = true;
+                                });
+                                if (!hasCurrent && currentModel) {
+                                    var opt = document.createElement('option');
+                                    opt.value = currentModel;
+                                    opt.innerText = currentModel + " (Falta descargar)";
+                                    selector.appendChild(opt);
+                                }
+                                selector.value = currentModel;
+                            }
+                        });
+                    });
+
+                    document.getElementById('drop-zone-container').addEventListener('click', function () {
+                        backend.open_file_dialog();
+                    });
+
+                    // Eliminadas las escuchas a los botones de descarga
+
+                    var dropZone = document.getElementById('drop-zone');
+                    dropZone.addEventListener('dragover', function (e) { e.preventDefault(); dropZone.classList.add('dragover'); });
+                    dropZone.addEventListener('dragleave', function (e) { e.preventDefault(); dropZone.classList.remove('dragover'); });
+                    dropZone.addEventListener('drop', function (e) {
+                        e.preventDefault();
+                        dropZone.classList.remove('dragover');
+                    });
+                });
+            }
+        });
+
+        function updateLog(time, message) {
+            var logContainer = document.getElementById('process-logs');
+            if (logContainer) {
+                var newLog = document.createElement('div');
+                newLog.className = 'flex gap-4 mb-3';
+                newLog.innerHTML = `<span class="font-label text-[10px] text-on-tertiary-container mt-1 bg-tertiary-container px-1.5 py-0.5 rounded h-max">${time}</span>
+                                <p class="text-sm text-on-surface leading-relaxed">${message}</p>`;
+                logContainer.prepend(newLog);
+            }
+        }
+
+        function updateProgress(pct, label) {
+            var container = document.getElementById('progress-container');
+            var status = document.getElementById('progress-status');
+            var fill = document.getElementById('progress-fill');
+            var pctText = document.getElementById('progress-percent');
+
+            if (container) {
+                container.classList.remove('hidden');
+                status.innerText = label;
+                fill.style.width = pct + '%';
+                pctText.innerText = pct + '%';
+
+                if (pct >= 100) {
+                    status.innerText = "Completado";
+                    // Desaparecer la barra tras 2 segundos si alcanzó el 100%
+                    setTimeout(() => {
+                        container.classList.add('hidden');
+                        fill.style.width = '0%';
+                        pctText.innerText = '0%';
+                    }, 2000);
+                }
+            }
+        }
+
+        function clearLogs() {
+            var logContainer = document.getElementById('process-logs');
+            if (logContainer) logContainer.innerHTML = '';
+            var progressContainer = document.getElementById('progress-container');
+            if (progressContainer) {
+                progressContainer.classList.add('hidden');
+                document.getElementById('progress-fill').style.width = '0%';
+                document.getElementById('progress-percent').innerText = '0%';
+            }
+        }
+
+        function setSummary(markdown) {
+            var cc = document.getElementById('synthesis-content');
+            if (cc) {
+                cc.innerHTML = marked.parse(markdown);
+            }
+            // Botones de descarga automatizados, ya no se habilitan aca.
+        }
+
+        function showOllamaWarning(show) {
+            const warning = document.getElementById('ollama-warning');
+            if (show) {
+                warning.classList.remove('hidden');
+            } else {
+                warning.classList.add('hidden');
+            }
+        }
+    </script>
+</body>
+
+</html>
