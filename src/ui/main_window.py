@@ -14,8 +14,10 @@ from transcriber import AudioTranscriber
 from summarizer import GemmaSummarizer
 from utils.config_manager import ConfigManager
 from utils.resource_handler import get_resource_path
+from version import __version__
 import dotenv
 import requests
+
 
 class ProcessingThread(QThread):
     """
@@ -87,6 +89,7 @@ class ProcessingThread(QThread):
             }
             self.stats_signal.emit(stats)
 
+            
             self.finished_signal.emit(summary_md)
 
         except Exception as e:
@@ -147,6 +150,7 @@ class UIBackend(QObject):
     def download_pdf(self):
         self.window.download_pdf()
 
+
     @pyqtSlot()
     def toggle_theme(self):
         self.window.toggle_theme()
@@ -163,7 +167,7 @@ class MainWindow(QMainWindow):
         self.init_ui()
 
     def init_ui(self):
-        self.setWindowTitle("esencIA | Sintesis de vídeo académico")
+        self.setWindowTitle(f"esencIA v{__version__} | Académico")
         self.resize(1200, 800)
 
         # Set Window Icon
@@ -294,7 +298,9 @@ class MainWindow(QMainWindow):
         except Exception as e:
             self.on_error(f"Error generando PDF final: {e}")
             
+            
         self.run_js(f"updateLog('{datetime.now().strftime('%H:%M')}', '¡Todo listo!');")
+
 
     def on_error(self, error_message):
         safe_msg = error_message.replace('\\', '\\\\').replace("'", "\\'").replace('"', '\\"').replace('\n',' ')

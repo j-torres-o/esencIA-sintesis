@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <title>esencIA | Sintesis de vídeo académico</title>
+    <title>esencIA v0.2.0 | Sintesis de vídeo académico</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <link
@@ -178,7 +178,7 @@
     <header class="w-full top-0 sticky z-50 transition-colors" style="background-color: var(--header-bg);">
         <div class="flex justify-between items-center px-8 py-4 max-w-[1440px] mx-auto w-full">
             <div class="font-headline text-lg font-bold tracking-widest transition-colors"
-                style="color: var(--header-text);">esencIA</div>
+                style="color: var(--header-text);">esencIA <span class="text-[10px] opacity-50 ml-1">v0.2.0</span></div>
             <div class="flex items-center gap-2">
                 <div id="settings-btn"
                     class="p-2 text-primary transition-colors duration-300 cursor-pointer active:scale-95 rounded-full"
@@ -251,6 +251,7 @@
                             <span class="text-primary material-symbols-outlined">analytics</span>
                             Resumen ejecutivo
                         </h2>
+                        
                         <div id="synthesis-content"
                             class="text-lg text-on-surface-variant leading-relaxed font-light prose dark:prose-invert max-w-none">
                             Esperando síntesis...
@@ -367,7 +368,8 @@
 
             if (typeof QWebChannel !== 'undefined') {
                 new QWebChannel(qt.webChannelTransport, function (channel) {
-                    backend = channel.objects.backend;
+                    window.backend = channel.objects.backend;
+                    const dropZone = document.getElementById('drop-zone');
 
                     backend.get_theme_preference(function (pref) {
                         applyThemePreference(pref);
@@ -407,9 +409,8 @@
                         backend.open_file_dialog();
                     });
 
-                    // Eliminadas las escuchas a los botones de descarga
 
-                    var dropZone = document.getElementById('drop-zone');
+                    // Eliminadas las escuchas a los botones de descarga
                     dropZone.addEventListener('dragover', function (e) { e.preventDefault(); dropZone.classList.add('dragover'); });
                     dropZone.addEventListener('dragleave', function (e) { e.preventDefault(); dropZone.classList.remove('dragover'); });
                     dropZone.addEventListener('drop', function (e) {
@@ -419,6 +420,7 @@
                 });
             }
         });
+
 
         function updateLog(time, message) {
             var logContainer = document.getElementById('process-logs');
@@ -471,7 +473,6 @@
             if (cc) {
                 cc.innerHTML = marked.parse(markdown);
             }
-            // Botones de descarga automatizados, ya no se habilitan aca.
         }
 
         function showOllamaWarning(show) {

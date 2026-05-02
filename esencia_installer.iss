@@ -2,7 +2,7 @@
 ; ---------------------------------
 
 #define MyAppName "esencIA"
-#define MyAppVersion "0.1.0"
+#define MyAppVersion "0.2.0"
 #define MyAppPublisher "esencIA Team"
 #define MyAppExeName "esencIA.exe"
 #define MyIconPath "src\ui\assets\icon.ico"

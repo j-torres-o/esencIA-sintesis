@@ -1,6 +1,5 @@
 import os
 import openai
-from config import GEMMA_API_KEY
 from utils.config_manager import ConfigManager
 
 class GemmaSummarizer:
@@ -16,7 +15,7 @@ class GemmaSummarizer:
         """
         config = ConfigManager()
 
-        self.api_key = api_key or GEMMA_API_KEY or "ollama"
+        self.api_key = api_key or "ollama"
         
         # Configuración del cliente OpenAI compatible con Ollama/LM Studio
         self.client = openai.OpenAI(
@@ -43,19 +42,25 @@ class GemmaSummarizer:
             return "No se proporcionó texto para resumir.", 0
 
         prompt = (
-            "Crea un resumen detallado de esta sesion, Con todos los parametros, recomendaciones, indicaciones. "
-            "Eres un asistente experto en toma de notas y síntesis de información. "
-            "La síntesis debe ser estructurada y profesional en formato Markdown. El resumen debe incluir:\n\n"
-            "### 📌 Estructura del Resumen:\n"
-            "1. **Título Descriptivo**: Un título (con #) que resuma claramente el tema principal.\n"
-            "2. **Introducción**: Un breve párrafo que contextualice el contenido.\n"
-            "3. **Puntos Clave**: Una lista con viñetas con los conceptos o ideas principales.\n"
-            "4. **Desarrollo Detallado**: Organizado por subtítulos (##) según las temáticas o instrucciones dadas.\n"
-            "5. **Conclusión/Cierre**: Un resumen claro de la conclusión.\n\n"
-            "### 🛠️ Instrucciones de Estilo:\n"
-            "- Utiliza un tono profesional.\n"
-            "- Usa negritas (`**texto**`) para términos importantes.\n"
-            "- Asegúrate de replicar todas las indicaciones, fechas o métricas textualmente.\n\n"
+            "Eres un analista de información de alta precisión especializado en síntesis académica. "
+            "Crea un resumen EJECUTIVO y FIEL de esta sesión basándote EXCLUSIVAMENTE en la transcripción proporcionada. \n\n"
+            "### 🛑 REGLAS ESTRICTAS DE FIDELIDAD:\n"
+            "1. **SOLO usa la información del texto**: No agregues conocimientos externos ni suposiciones.\n"
+            "2. **Proporcionalidad**: El resumen debe reflejar la densidad del contenido original.\n"
+            "3. **Exactitud**: Mantén tecnicismos, cifras y nombres exactamente como se mencionan.\n\n"
+            "### 🎓 DETECCIÓN DE ENTREGABLES ACADÉMICOS:\n"
+            "Si en la transcripción se menciona la creación, requisitos o detalles de un entregable académico "
+            "(ej: Ensayo, Artículo de investigación, Revisión de literatura, Estudio de caso, Abstract/Resumen, Tesis, Proyecto, etc.), "
+            "DEBES crear una sección especial llamada '📌 Detalles del Entregable Académico' con información EXTRA DETALLADA sobre:\n"
+            "- Tipo de entregable mencionado.\n"
+            "- Requisitos específicos, estructura solicitada o fechas clave.\n"
+            "- Instrucciones metodológicas o de formato (APA, Vancouver, etc.) si se mencionan.\n\n"
+            "### 📌 Estructura General Requerida:\n"
+            "1. **Título**: Breve y académico.\n"
+            "2. **Puntos Clave**: Hechos o conceptos principales.\n"
+            "3. **Sección de Entregables** (Solo si aplica): Detalles técnicos y exhaustivos del trabajo solicitado.\n"
+            "4. **Desarrollo**: Subtemas diferenciados.\n"
+            "5. **Conclusión**: Cierre basado únicamente en el texto.\n\n"
             "--- \n"
             "#### 📝 Transcripción para procesar:\n"
             f"{text}"
@@ -66,10 +71,10 @@ class GemmaSummarizer:
             response = self.client.chat.completions.create(
                 model=self.model_name,
                 messages=[
-                    {"role": "system", "content": "Eres un analista de información y asistente de documentación."},
+                    {"role": "system", "content": "Eres un asistente de documentación de alta precisión. Tu prioridad absoluta es la fidelidad al texto fuente. No agregas información externa."},
                     {"role": "user", "content": prompt}
                 ],
-                temperature=0.7,
+                temperature=0.2,
                 extra_body={
                     "options": {
                         "num_ctx": 131072

@@ -24,11 +24,12 @@ class AudioTranscriber:
             os.environ["PATH"] += os.pathsep + ffmpeg_path
 
     def _load_model(self):
-        """Carga el modelo de faster-whisper optimizado para GPU si es posible."""
+        """Carga el modelo de faster-whisper eligiendo el mejor hardware disponible."""
         if self.model is None:
             print(f"Cargando modelo faster-whisper '{self.model_size}'...")
-            # Automatically detects if CUDA is available, otherwise uses CPU
-            self.model = WhisperModel(self.model_size, device="cuda", compute_type="float16")
+            # 'auto' detectará si hay CUDA disponible, si no, usará CPU sin errores manuales.
+            # 'default' seleccionará el mejor tipo de cómputo para el hardware detectado.
+            self.model = WhisperModel(self.model_size, device="auto", compute_type="default")
 
     def transcribe(self, audio_path: str, progress_callback=None) -> str:
         """
@@ -66,10 +67,12 @@ class AudioTranscriber:
             return text
             
         except Exception as e:
-            print(f"Error durante la transcripción GPU: {e}")
-            # Fallback en caso de que el driver CUDA no este bien configurado 
-            print("Intentando fallback a CPU (más lento)...")
-            self.model = WhisperModel(self.model_size, device="cpu", compute_type="int8")
+            print(f"Aviso: El motor de transcripción encontró un problema: {e}")
+            # Si el modo automático falla, forzamos CPU como último recurso
+            if self.model is None or self.model.device != "cpu":
+                print("Cambiando a modo CPU para asegurar compatibilidad...")
+                self.model = WhisperModel(self.model_size, device="cpu", compute_type="int8")
+            
             segments, info = self.model.transcribe(str(audio_path), vad_filter=True, language="es")
             
             total_duration = info.duration

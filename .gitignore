@@ -34,7 +34,7 @@ venv.bak/
 # [ PyInstaller ]
 #  Usually these files are written by a python script, and contain the bin encodings
 *.manifest
-*.spec
+# *.spec
 
 # [ IDEs ]
 .vscode/
@@ -44,6 +44,9 @@ venv.bak/
 
 # [ Project Specific ]
 outputs/
+graphify-out/
+scratch/
+.agents/
 *.mp3
 *.m4a
 *.wav
@@ -51,6 +54,13 @@ outputs/
 *_summary.md
 *_transcription.txt
 *.pdf
+*.log
+
+# [ Build & Packaging ]
+dist/
+build/
+*.exe
+*.msi
 
 # [ Inno Setup ]
 dist/installer/
