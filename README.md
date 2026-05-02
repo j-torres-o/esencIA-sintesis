@@ -1,6 +1,6 @@
-# esencIA - Síntesis de Vídeo Académico
+# esencIA - Síntesis de Vídeo Académico (v0.2.0)
 
-esencIA es una herramienta de escritorio potente y elegante diseñada para convertir vídeos académicos (clases, conferencias, seminarios) en notas estructuradas y resúmenes ejecutivos utilizando inteligencia artificial local.
+esencIA es una herramienta de escritorio potente y elegante diseñada para convertir vídeos académicos (clases, conferencias, seminarios) en notas estructuradas y resúmenes ejecutivos utilizando inteligencia artificial **100% local**.
 
 ![esencIA Logo](src/ui/assets/icon.png)
 
@@ -9,8 +9,9 @@ esencIA es una herramienta de escritorio potente y elegante diseñada para conve
 - **Transcripción Ultra-Rápida**: Utiliza `faster-whisper` (basado en CTranslate2) para transcribir audio a texto de forma eficiente, incluso en CPUs estándar.
 - **IA Local (Privacidad Total)**: Integración con **Ollama** para generar resúmenes detallados usando modelos como `Gemma`, asegurando que tus datos nunca salgan de tu máquina.
 - **Interfaz Moderna**: UI fluida y receptiva construida con PyQt6 y QWebEngine, con soporte para **Modo Oscuro** automático.
-- **Exportación Automática**: Genera de forma automática archivos Markdown (`.md`) y documentos **PDF** listos para estudiar.
-- **Drag & Drop**: Arrastra tus archivos MP4 directamente a la interfaz para iniciar el procesamiento.
+- **Detección de Entregables Académicos**: El motor de IA identifica automáticamente menciones a ensayos, tesis, proyectos o exámenes, generando una sección de detalles exhaustivos con requisitos y fechas.
+- **Exportación Automática**: Genera de forma automática archivos Markdown (`.md`) y documentos **PDF** profesionales listos para estudiar.
+- **Drag & Drop**: Arrastra tus archivos MP4 directamente a la interfaz para iniciar el procesamiento instantáneo.
 
 ## 🛠️ Requisitos Previos
 
@@ -65,7 +66,7 @@ Este proyecto está bajo la Licencia **GNU GPL v3**. Consulta el archivo `LICENS
 
 ---
 ### 📝 Créditos y Agradecimientos
-Este proyecto fue desarrollado con la asistencia de los modelos de IA **Gemini** y **Gemma**, utilizando flujos de trabajo de programación asistida para optimizar la estructura del código y la interfaz de usuario.
+Este proyecto fue desarrollado con la asistencia del agente de IA **Antigravity** de Google DeepMind, utilizando modelos **Gemini** y **Gemma** para optimizar la estructura del código, la lógica académica y la interfaz de usuario.
 
 ---
 *Desarrollado con ❤️ para facilitar el aprendizaje académico.*
