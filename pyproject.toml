@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "video_to_notes_app"
-version = "0.2.1"
+dynamic = ["version"]
 description = "esencIA - Síntesis de Vídeo Académico local usando Ollama y Whisper"
 readme = "README.md"
 authors = [
@@ -31,6 +31,9 @@ dev = [
     "black>=23.0.0",
     "pyinstaller>=6.0.0"
 ]
+
+[tool.setuptools.dynamic]
+version = {attr = "version.__version__"}
 
 [tool.ruff]
 line-length = 100
