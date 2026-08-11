@@ -1,6 +1,6 @@
 """Single Source of Truth for esencIA Application Version & Metadata."""
 
-__version__ = "0.3.0"
+__version__ = "0.3.1"
 APP_NAME = "esencIA"
 APP_DESCRIPTION = "Síntesis de Vídeo Académico local usando Ollama y Whisper"
 APP_AUTHOR = "esencIA Team"
