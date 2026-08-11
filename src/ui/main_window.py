@@ -17,7 +17,7 @@ from summarizer import GemmaSummarizer
 from transcriber import AudioTranscriber
 from utils.config_manager import ConfigManager
 from utils.resource_handler import get_resource_path
-from version import __version__
+from version import get_version_info
 
 
 class ProcessingThread(QThread):
@@ -185,6 +185,10 @@ class UIBackend(QObject):
         else:
             self.window.run_js(f"updateLog('{datetime.now().strftime('%H:%M')}','Error: El archivo debe ser un MP4.');")
 
+    @pyqtSlot(result=dict)
+    def get_app_info(self):
+        return get_version_info()
+
     @pyqtSlot()
     def download_summary(self):
         self.window.download_summary()
@@ -212,7 +216,7 @@ class MainWindow(QMainWindow):
         self.init_ui()
 
     def init_ui(self):
-        self.setWindowTitle(f"esencIA v{__version__} | Académico")
+        self.setWindowTitle("esencIA | Académico")
         self.resize(1200, 800)
 
         # Set Window Icon
