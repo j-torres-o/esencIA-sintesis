@@ -1,0 +1,38 @@
+name: Reporte de Error (Bug Report)
+description: Crea un informe para ayudarnos a corregir un fallo en esencIA.
+title: "[BUG]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: Gracias por tomarte el tiempo de reportar este problema.
+  - type: textarea
+    id: description
+    attributes:
+      label: Descripción del problema
+      description: Una explicación clara y concisa de lo que sucede.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Pasos para reproducir el error
+      description: Pasos exactos para recrear el problema.
+      placeholder: |
+        1. Iniciar la aplicación '...'
+        2. Arrastrar el archivo '...'
+        3. Hacer clic en '...'
+        4. Ver el error en el log
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Entorno
+      description: Información de tu sistema operativo y configuración.
+      placeholder: |
+        - Sistema Operativo: Windows 11
+        - Versión de esencIA: v0.2.0
+        - Modelo de Ollama utilizado: gemma
+    validations:
+      required: true
