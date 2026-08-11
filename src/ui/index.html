@@ -1,289 +1,274 @@
 <!DOCTYPE html>
-<html class="dark" lang="en">
+<html lang="es" class="dark">
 
 <head>
-    <meta charset="utf-8" />
-    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <title>esencIA v0.2.0 | Sintesis de vídeo académico</title>
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Work+Sans:wght@300;400;500;600&family=Inter:wght@400;500;600&display=swap"
-        rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
-        rel="stylesheet" />
-    <style>
-        :root {
-            color-scheme: light;
-            --background: #F5F5F7;
-            --surface: #ffffff;
-            --surface-container-low: #ebebeb;
-            --surface-container-high: #e0e0e0;
-            --surface-container-highest: #d6d6d6;
-            --primary: #1A237E;
-            --primary-fixed: #e0e0ff;
-            --on-primary-fixed: #1A237E;
-            --secondary: #717494;
-            --tertiary: #5C1000;
-            --tertiary-container: #ffd2c7;
-            --on-tertiary-container: #400800;
-            --on-surface: #121212;
-            --on-surface-variant: #4a4a4a;
-            --outline-variant: #aaaaaa;
-            --error: #ba1a1a;
-            --gradient-start: #1A237E;
-            --gradient-end: #5C1000;
-            --header-bg: #F5F5F7;
-            --header-text: #121212;
-            --icon-hover: #d6d6d6;
-        }
-
-        .dark {
-            color-scheme: dark;
-            --background: #121212;
-            --surface: #201f1f;
-            --surface-container-low: #1c1b1b;
-            --surface-container-high: #2a2a2a;
-            --surface-container-highest: #353534;
-            --primary: #3F51B5;
-            --primary-fixed: #dee0ff;
-            --on-primary-fixed: #00105c;
-            --secondary: #807D8B;
-            --tertiary: #009688;
-            --tertiary-container: #003731;
-            --on-tertiary-container: #2da99a;
-            --on-surface: #e5e2e1;
-            --on-surface-variant: #c6c5d4;
-            --outline-variant: #454652;
-            --error: #ffb4ab;
-            --gradient-start: #bac3ff;
-            --gradient-end: #072189;
-            --header-bg: #131313;
-            --header-text: #e5e2e1;
-            --icon-hover: rgba(53, 53, 52, 0.5);
-        }
-
-        select, option {
-            background-color: var(--surface-container-high);
-            color: var(--on-surface);
-        }
-
-        select option {
-            background-color: var(--surface-container-high);
-            color: var(--on-surface);
-            padding: 8px;
-        }
-
-        body {
-            transition: background-color 0.3s, color 0.3s;
-        }
-
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-        }
-
-        .editorial-gradient {
-            background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
-        }
-
-        ::-webkit-scrollbar {
-            width: 4px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: var(--background);
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: var(--surface-container-highest);
-            border-radius: 10px;
-        }
-
-        .prose h1,
-        .prose h2,
-        .prose h3 {
-            color: var(--on-surface);
-            font-weight: bold;
-            margin-top: 1rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .prose p {
-            margin-bottom: 1rem;
-        }
-
-        .prose ul {
-            list-style-type: disc;
-            padding-left: 1.5rem;
-            margin-bottom: 1rem;
-        }
-
-        .prose code {
-            background: var(--surface-container-highest);
-            padding: 0.2rem 0.4rem;
-            border-radius: 0.25rem;
-            font-family: monospace;
-        }
-
-        .prose pre {
-            background: var(--surface-container-low);
-            padding: 1rem;
-            border-radius: 0.5rem;
-            overflow-x: auto;
-            margin-bottom: 1rem;
-        }
-
-        #drop-zone.dragover {
-            background-color: var(--surface-container-highest);
-            border-color: var(--primary);
-        }
-    </style>
-    <script id="tailwind-config">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>esencIA - Síntesis de Vídeo Académico</title>
+    <!-- Tailwind CSS (CDN para prototipo rápido / UI fluida) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
         tailwind.config = {
-            darkMode: "class",
+            darkMode: 'class',
             theme: {
                 extend: {
-                    "colors": {
-                        "background": "var(--background)",
-                        "surface": "var(--surface)",
-                        "surface-container-low": "var(--surface-container-low)",
-                        "surface-container-high": "var(--surface-container-high)",
-                        "surface-container-highest": "var(--surface-container-highest)",
-                        "primary": "var(--primary)",
-                        "primary-fixed": "var(--primary-fixed)",
-                        "on-primary-fixed": "var(--on-primary-fixed)",
-                        "secondary": "var(--secondary)",
-                        "tertiary": "var(--tertiary)",
-                        "tertiary-container": "var(--tertiary-container)",
-                        "on-tertiary-container": "var(--on-tertiary-container)",
-                        "on-surface": "var(--on-surface)",
-                        "on-surface-variant": "var(--on-surface-variant)",
-                        "outline-variant": "var(--outline-variant)",
-                        "error": "var(--error)"
+                    colors: {
+                        "primary": "#aec6ff",
+                        "on-primary": "#002e6c",
+                        "primary-container": "#1d4485",
+                        "on-primary-container": "#d8e2ff",
+                        "secondary": "#bfc6dc",
+                        "on-secondary": "#293042",
+                        "secondary-container": "#3f4759",
+                        "on-secondary-container": "#dbe2f9",
+                        "tertiary": "#e0bbdd",
+                        "on-tertiary": "#412742",
+                        "tertiary-container": "#593d59",
+                        "on-tertiary-container": "#fdd7fa",
+                        "error": "#ffb4ab",
+                        "on-error": "#690005",
+                        "error-container": "#93000a",
+                        "on-error-container": "#ffdad6",
+                        "background": "#131313",
+                        "on-background": "#e2e2e2",
+                        "surface": "#131313",
+                        "on-surface": "#e2e2e2",
+                        "surface-variant": "#44474f",
+                        "on-surface-variant": "#c4c6d0",
+                        "outline": "#8e9099",
+                        "outline-variant": "#44474f",
+                        "shadow": "#000000",
+                        "scrim": "#000000",
+                        "inverse-surface": "#e2e2e2",
+                        "inverse-on-surface": "#303030",
+                        "inverse-primary": "#375d9f",
+                        "surface-dim": "#131313",
+                        "surface-bright": "#393939",
+                        "surface-container-lowest": "#0e0e0e",
+                        "surface-container-low": "#1b1b1b",
+                        "surface-container": "#1f1f1f",
+                        "surface-container-high": "#2a2a2a",
+                        "surface-container-highest": "#353535"
                     },
-                    "borderRadius": {
-                        "DEFAULT": "0.25rem",
-                        "lg": "0.5rem",
-                        "xl": "0.75rem",
-                        "full": "9999px"
-                    },
-                    "fontFamily": {
-                        "headline": ["Manrope"],
-                        "body": ["Work Sans"],
-                        "label": ["Inter"]
+                    fontFamily: {
+                        'sans': ['Inter', 'sans-serif'],
+                        'headline': ['Outfit', 'sans-serif'],
+                        'body': ['Inter', 'sans-serif'],
+                        'label': ['Inter', 'sans-serif']
                     }
                 }
             }
         }
     </script>
+    <!-- Google Fonts & Material Symbols -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            user-select: none;
+        }
+
+        .font-headline {
+            font-family: 'Outfit', sans-serif;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.4);
+        }
+
+        /* Smooth Drag Over Effects */
+        .drop-active {
+            border-color: #aec6ff !important;
+            background-color: rgba(174, 198, 255, 0.05) !important;
+        }
+    </style>
 </head>
 
-<body class="bg-background text-on-surface font-body selection:bg-primary-container selection:text-primary">
-    <!-- Aviso de Ollama Desconectado -->
-    <div id="ollama-warning" class="hidden bg-error/10 border-b border-error/20 py-2 px-8 flex justify-between items-center transition-all duration-500">
-        <div class="flex items-center gap-2 text-error text-xs font-label">
-            <span class="material-symbols-outlined text-sm">warning</span>
-            <span>Ollama no detectado. Abre la aplicación de Ollama para procesar videos.</span>
-        </div>
-        <a href="https://ollama.com" target="_blank" class="text-[10px] uppercase tracking-widest font-bold text-primary hover:underline">Descargar Ollama</a>
-    </div>
+<body class="bg-background text-on-background min-h-screen flex flex-col antialiased selection:bg-primary-container">
 
-    <header class="w-full top-0 sticky z-50 transition-colors" style="background-color: var(--header-bg);">
-        <div class="flex justify-between items-center px-8 py-4 max-w-[1440px] mx-auto w-full">
-            <div class="font-headline text-lg font-bold tracking-widest transition-colors"
-                style="color: var(--header-text);">esencIA <span class="text-[10px] opacity-50 ml-1">v0.2.0</span></div>
-            <div class="flex items-center gap-2">
-                <div id="settings-btn"
-                    class="p-2 text-primary transition-colors duration-300 cursor-pointer active:scale-95 rounded-full"
-                    style="background-color: transparent;" onmouseover="this.style.backgroundColor='var(--icon-hover)'"
-                    onmouseout="this.style.backgroundColor='transparent'">
-                    <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">settings</span>
-                </div>
+    <!-- Top Navigation Bar -->
+    <header
+        class="h-16 border-b border-outline-variant/30 px-6 flex items-center justify-between bg-surface-container-low/80 backdrop-blur-md sticky top-0 z-50">
+        <div class="flex items-center space-x-3">
+            <div
+                class="w-9 h-9 rounded-xl bg-gradient-to-tr from-primary-container to-primary flex items-center justify-center text-on-primary shadow-lg shadow-primary/10">
+                <span class="material-symbols-outlined text-xl">auto_awesome</span>
             </div>
+            <div>
+                <h1 class="font-headline font-bold text-lg leading-none tracking-tight text-on-surface">esencIA</h1>
+                <span class="text-[10px] text-on-surface-variant font-medium tracking-wider uppercase">Académico</span>
+            </div>
+        </div>
+
+        <!-- System Stats / Status indicator -->
+        <div class="flex items-center space-x-4">
+            <div id="ollama-status-badge" class="flex items-center space-x-2 px-3 py-1.5 rounded-full bg-surface-container border border-outline-variant/40 text-xs text-on-surface-variant">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span id="ollama-status-text" class="font-medium">Ollama Conectado</span>
+            </div>
+
+            <!-- Settings Button -->
+            <button id="settings-btn"
+                class="p-2 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-all">
+                <span class="material-symbols-outlined text-xl">settings</span>
+            </button>
         </div>
     </header>
-    <main class="max-w-[1200px] mx-auto px-6 py-12">
-        <div class="grid grid-cols-1 md:grid-cols-12 gap-8 mb-16">
-            <div class="md:col-span-6 group cursor-pointer" id="drop-zone-container">
-                <div id="drop-zone"
-                    class="h-[340px] w-full bg-surface-container-high rounded-xl border-2 border-dashed border-outline-variant flex flex-col items-center justify-center transition-all duration-500 hover:bg-surface-container-highest hover:border-primary relative overflow-hidden">
-                    <div
-                        class="absolute inset-0 editorial-gradient opacity-0 group-hover:opacity-5 transition-opacity duration-500 pointer-events-none">
-                    </div>
-                    <div class="bg-surface p-5 rounded-full mb-6 pointer-events-none">
-                        <span class="material-symbols-outlined text-primary text-5xl">upload_file</span>
-                    </div>
-                    <h3 class="font-headline text-xl font-semibold mb-2 pointer-events-none">Arrastra y suelta</h3>
-                    <p class="text-on-surface-variant text-sm font-label tracking-wide pointer-events-none mb-4">El
-                        vídeo debe estar en formato MP4 (Max 2GB)</p>
+
+    <!-- Main Workspace -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- Banner de Advertencia Ollama (Oculto por defecto) -->
+        <div id="ollama-warning-banner" class="hidden lg:col-span-12 bg-amber-500/10 border border-amber-500/30 rounded-xl p-4 flex items-center justify-between text-amber-200 text-sm">
+            <div class="flex items-center space-x-3">
+                <span class="material-symbols-outlined text-amber-400">warning</span>
+                <div>
+                    <span class="font-bold">Servidor Ollama No Detectado:</span> No pudimos conectarnos a <code>http://localhost:11434</code>. Asegúrate de tener Ollama abierto en tu máquina.
                 </div>
             </div>
-            <div class="md:col-span-6">
-                <div class="h-[340px] bg-surface-container-low rounded-xl p-6 flex flex-col">
-                    <h4
-                        class="font-headline text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-4 flex items-center gap-2 shrink-0">
-                        <span class="w-1.5 h-1.5 rounded-full bg-tertiary"></span> Registro de actividad
-                    </h4>
-                    <div id="progress-container" class="hidden mb-4 shrink-0 transition-opacity">
-                        <div class="flex justify-between text-xs text-on-surface-variant mb-1 font-label">
-                            <span id="progress-status">Procesando...</span>
-                            <span id="progress-percent">0%</span>
-                        </div>
-                        <div class="w-full bg-surface-container-highest rounded-full h-1.5 overflow-hidden">
-                            <div id="progress-fill"
-                                class="editorial-gradient h-1.5 rounded-full transition-all duration-300"
-                                style="width: 0%"></div>
-                        </div>
-                    </div>
-                    <div id="process-logs" class="flex-grow space-y-5 overflow-y-auto pr-2">
-                        <!-- Logs dynamically appended here -->
-                    </div>
-                </div>
-            </div>
+            <button onclick="document.getElementById('ollama-warning-banner').classList.add('hidden')" class="text-amber-400 hover:text-amber-100 font-medium">Entendido</button>
         </div>
 
-        <section class="bg-surface-container-low rounded-xl p-10 md:p-16 relative overflow-hidden shadow-2xl">
-            <div class="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
-                <span class="material-symbols-outlined text-9xl">auto_stories</span>
-            </div>
-            <div class="max-w-[800px] mx-auto relative z-10">
-                <header class="mb-12 border-b border-outline-variant pb-12 text-center md:text-left">
-                    <div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
-                        <div></div>
-                        <div class="flex flex-col items-center md:items-end">
-                            <span
-                                class="text-on-surface-variant font-label text-[10px] uppercase tracking-tighter">Fecha
-                                de procesamiento</span>
-                            <span id="stats-date" class="text-on-surface font-body font-medium">Esperando...</span>
-                        </div>
-                    </div>
-                </header>
-                <div class="space-y-12">
-                    <div>
-                        <h2 class="font-headline text-2xl font-bold text-on-surface mb-6 flex items-center gap-3">
-                            <span class="text-primary material-symbols-outlined">analytics</span>
-                            Resumen ejecutivo
-                        </h2>
-                        
-                        <div id="synthesis-content"
-                            class="text-lg text-on-surface-variant leading-relaxed font-light prose dark:prose-invert max-w-none">
-                            Esperando síntesis...
-                        </div>
+        <!-- Left Column: Upload & Live Processing Logs -->
+        <section class="lg:col-span-5 flex flex-col space-y-6">
+
+            <!-- Drag and Drop Target Card -->
+            <div id="drop-zone-container" class="relative group cursor-pointer">
+                <div id="drop-zone"
+                    class="border-2 border-dashed border-outline-variant hover:border-primary/60 bg-surface-container-low hover:bg-surface-container rounded-2xl p-8 flex flex-col items-center justify-center text-center transition-all duration-300 min-h-[260px] relative overflow-hidden">
+
+                    <!-- Ambient Glow -->
+                    <div
+                        class="absolute -inset-1 bg-gradient-to-r from-primary/10 to-tertiary/10 rounded-2xl blur opacity-0 group-hover:opacity-100 transition duration-500">
                     </div>
 
                     <div
-                        class="pt-12 border-t border-outline-variant flex flex-col md:flex-row items-center justify-between gap-8">
-                        <!-- Botones de descarga eliminados por automatización -->
+                        class="w-16 h-16 rounded-2xl bg-surface-container-high flex items-center justify-center text-primary mb-4 group-hover:scale-110 group-hover:bg-primary-container group-hover:text-on-primary-container transition-all duration-300 shadow-md">
+                        <span class="material-symbols-outlined text-3xl">upload_file</span>
                     </div>
+
+                    <h3 class="font-headline font-semibold text-base text-on-surface mb-1">
+                        Arrastra tu vídeo aquí
+                    </h3>
+                    <p class="text-xs text-on-surface-variant max-w-[240px] mb-4">
+                        Soporta archivos de clase o conferencias en formato MP4
+                    </p>
+
+                    <span
+                        class="px-4 py-2 rounded-lg bg-surface-container-highest text-xs text-primary font-medium border border-outline-variant/30 group-hover:border-primary/40 transition-colors">
+                        O haz clic para explorar
+                    </span>
+                </div>
+            </div>
+
+            <!-- Processing Status & Progress Bar -->
+            <div class="bg-surface-container-low rounded-2xl p-6 border border-outline-variant/30 space-y-4">
+                <div class="flex items-center justify-between">
+                    <span class="font-headline font-semibold text-sm text-on-surface flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary text-base">sync</span>
+                        Progreso de Procesamiento
+                    </span>
+                    <span id="progress-percentage" class="text-xs font-mono font-bold text-primary">0%</span>
+                </div>
+
+                <!-- Progress Track -->
+                <div class="w-full bg-surface-container-highest rounded-full h-2 overflow-hidden p-0.5">
+                    <div id="progress-bar"
+                        class="bg-gradient-to-r from-primary to-tertiary h-full rounded-full w-0 transition-all duration-300">
+                    </div>
+                </div>
+
+                <div id="progress-status-label" class="text-xs text-on-surface-variant font-medium">
+                    Esperando archivo de entrada...
+                </div>
+            </div>
+
+            <!-- Console Log Output -->
+            <div
+                class="bg-surface-container-low rounded-2xl p-5 border border-outline-variant/30 flex-1 flex flex-col min-h-[220px]">
+                <div class="flex items-center justify-between mb-3">
+                    <span
+                        class="text-xs font-label uppercase tracking-widest text-on-surface-variant font-semibold flex items-center gap-1.5">
+                        <span class="material-symbols-outlined text-sm">terminal</span>
+                        Registro de Auditoría
+                    </span>
+                    <button onclick="clearLogs()"
+                        class="text-[10px] text-on-surface-variant hover:text-on-surface transition-colors">
+                        Limpiar
+                    </button>
+                </div>
+
+                <div id="process-logs"
+                    class="font-mono text-xs text-on-surface-variant/90 space-y-2 overflow-y-auto max-h-[200px] flex-1 pr-2">
+                    <div class="text-outline">-- Listo para iniciar procesamiento local --</div>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- Right Column: AI Synthesis Result & Notes -->
+        <section class="lg:col-span-7 flex flex-col">
+            <div
+                class="bg-surface-container-low rounded-2xl border border-outline-variant/30 flex-1 flex flex-col overflow-hidden min-h-[500px]">
+
+                <!-- Header Actions -->
+                <div
+                    class="px-6 py-4 border-b border-outline-variant/30 bg-surface-container/50 flex items-center justify-between">
+                    <div class="flex items-center space-x-2">
+                        <span class="material-symbols-outlined text-primary">description</span>
+                        <h2 class="font-headline font-semibold text-sm text-on-surface">Notas y Resumen Ejecutivo</h2>
+                    </div>
+
+                    <div class="flex items-center space-x-2">
+                        <!-- Botones de descarga eliminados por automatización de guardado directo -->
+                    </div>
+                </div>
+
+                <!-- Markdown Content Render Container -->
+                <div class="p-8 flex-1 overflow-y-auto space-y-6">
+                    <div id="summary-content" class="prose prose-invert max-w-none text-on-surface text-sm leading-relaxed">
+                        <div class="flex flex-col items-center justify-center py-20 text-center text-on-surface-variant/50">
+                            <span class="material-symbols-outlined text-5xl mb-3">graphic_eq</span>
+                            <p class="text-sm font-medium">No se ha generado ningún resumen aún.</p>
+                            <p class="text-xs text-outline mt-1">Arrastra un vídeo de clase para comenzar la transcripción y análisis.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer Summary Metadata -->
+                <div class="px-6 py-3 border-t border-outline-variant/30 bg-surface-container/30 text-xs text-on-surface-variant flex items-center justify-between">
+                    <span>Motor: <strong class="text-on-surface">Gemma (Ollama)</strong></span>
+                    <span id="stats-date">--</span>
                 </div>
             </div>
         </section>
     </main>
 
-    <!-- Modal de configuraciones -->
+    <!-- Modal de configuraciones con Custom Dropdowns CSS/DOM -->
     <div id="settings-modal"
         class="fixed inset-0 z-[100] flex items-center justify-center bg-[#131313]/60 opacity-0 pointer-events-none transition-opacity duration-300">
-        <div class="bg-surface-container-low rounded-2xl w-[400px] p-8 shadow-2xl scale-95 transition-transform duration-300"
+        <div class="bg-surface-container-low rounded-2xl w-[420px] p-8 shadow-2xl scale-95 transition-transform duration-300 relative"
             id="settings-card">
             <div class="flex justify-between items-center mb-6">
                 <h2 class="font-headline text-xl font-bold text-on-surface">Configuraciones</h2>
@@ -293,26 +278,44 @@
                 </div>
             </div>
 
-            <div class="space-y-4">
+            <div class="space-y-6">
+                <!-- Custom Dropdown: Tema -->
                 <div>
-                    <label class="block font-label text-xs uppercase tracking-widest text-on-surface-variant mb-2">Tema
-                        de la interfaz</label>
-                    <select id="theme-selector"
-                        class="w-full bg-surface-container-high border border-outline-variant rounded-lg p-3 text-on-surface font-body outline-none focus:border-primary transition-colors cursor-pointer appearance-none">
-                        <option value="system">Tema del Sistema</option>
-                        <option value="light">Modo Claro</option>
-                        <option value="dark">Modo Oscuro</option>
-                    </select>
+                    <label class="block font-label text-xs uppercase tracking-widest text-on-surface-variant mb-2">Tema de la interfaz</label>
+                    <div class="relative" id="custom-theme-dropdown">
+                        <button id="custom-theme-trigger" type="button" class="w-full bg-surface-container-high border border-outline-variant rounded-lg p-3 text-on-surface font-body outline-none focus:border-primary transition-colors flex justify-between items-center cursor-pointer">
+                            <span id="custom-theme-label">Tema del Sistema</span>
+                            <span class="material-symbols-outlined text-sm transition-transform duration-200" id="custom-theme-arrow">expand_more</span>
+                        </button>
+                        <div id="custom-theme-menu" class="hidden absolute left-0 right-0 mt-1 bg-surface-container-high border border-outline-variant rounded-lg shadow-2xl z-[150] max-h-48 overflow-y-auto py-1">
+                            <div class="custom-theme-opt px-4 py-2.5 hover:bg-surface-container-highest cursor-pointer text-sm text-on-surface transition-colors flex justify-between items-center" data-value="system">
+                                <span>Tema del Sistema</span>
+                                <span class="material-symbols-outlined text-sm text-primary check-icon hidden">check</span>
+                            </div>
+                            <div class="custom-theme-opt px-4 py-2.5 hover:bg-surface-container-highest cursor-pointer text-sm text-on-surface transition-colors flex justify-between items-center" data-value="light">
+                                <span>Modo Claro</span>
+                                <span class="material-symbols-outlined text-sm text-primary check-icon hidden">check</span>
+                            </div>
+                            <div class="custom-theme-opt px-4 py-2.5 hover:bg-surface-container-highest cursor-pointer text-sm text-on-surface transition-colors flex justify-between items-center" data-value="dark">
+                                <span>Modo Oscuro</span>
+                                <span class="material-symbols-outlined text-sm text-primary check-icon hidden">check</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="mt-6">
-                    <label
-                        class="block font-label text-xs uppercase tracking-widest text-on-surface-variant mb-2">Modelo
-                        LLM (Ollama)</label>
-                    <select id="model-name-input"
-                        class="w-full bg-surface-container-high border border-outline-variant rounded-lg p-3 text-on-surface font-body outline-none focus:border-primary transition-colors cursor-pointer appearance-none">
-                    </select>
-                    <p class="text-[10px] text-on-surface-variant mt-2">Selecciona un modelo detectado en tu servidor
-                        local.</p>
+
+                <!-- Custom Dropdown: Modelo LLM -->
+                <div>
+                    <label class="block font-label text-xs uppercase tracking-widest text-on-surface-variant mb-2">Modelo LLM (Ollama)</label>
+                    <div class="relative" id="custom-model-dropdown">
+                        <button id="custom-model-trigger" type="button" class="w-full bg-surface-container-high border border-outline-variant rounded-lg p-3 text-on-surface font-body outline-none focus:border-primary transition-colors flex justify-between items-center cursor-pointer">
+                            <span id="custom-model-label" class="truncate">Cargando modelos...</span>
+                            <span class="material-symbols-outlined text-sm transition-transform duration-200" id="custom-model-arrow">expand_more</span>
+                        </button>
+                        <div id="custom-model-menu" class="hidden absolute left-0 right-0 mt-1 bg-surface-container-high border border-outline-variant rounded-lg shadow-2xl z-[150] max-h-48 overflow-y-auto py-1">
+                        </div>
+                    </div>
+                    <p class="text-[10px] text-on-surface-variant mt-2">Selecciona un modelo detectado en tu servidor local.</p>
                 </div>
             </div>
         </div>
@@ -364,20 +367,134 @@
                 } else {
                     modal.classList.add('opacity-0', 'pointer-events-none');
                     document.getElementById('settings-card').classList.add('scale-95');
+                    toggleThemeMenu(false);
+                    toggleModelMenu(false);
                 }
             };
 
             document.getElementById('settings-btn').addEventListener('click', () => toggleModal(true));
             document.getElementById('close-settings-btn').addEventListener('click', () => toggleModal(false));
 
-            document.getElementById('theme-selector').addEventListener('change', function (e) {
-                applyThemePreference(e.target.value);
-                if (backend) backend.save_theme_preference(e.target.value);
+            // Custom Dropdown logic for Theme
+            const themeTrigger = document.getElementById('custom-theme-trigger');
+            const themeMenu = document.getElementById('custom-theme-menu');
+            const themeArrow = document.getElementById('custom-theme-arrow');
+            const themeLabel = document.getElementById('custom-theme-label');
+            const themeOpts = document.querySelectorAll('.custom-theme-opt');
+
+            function toggleThemeMenu(show) {
+                if (show) {
+                    themeMenu.classList.remove('hidden');
+                    themeArrow.classList.add('rotate-180');
+                    toggleModelMenu(false);
+                } else {
+                    themeMenu.classList.add('hidden');
+                    themeArrow.classList.remove('rotate-180');
+                }
+            }
+
+            themeTrigger.addEventListener('click', (e) => {
+                e.stopPropagation();
+                toggleThemeMenu(themeMenu.classList.contains('hidden'));
             });
 
-            document.getElementById('model-name-input').addEventListener('change', function (e) {
-                if (backend) backend.save_model_name(e.target.value);
+            themeOpts.forEach(opt => {
+                opt.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const val = opt.getAttribute('data-value');
+                    selectThemeValue(val);
+                    toggleThemeMenu(false);
+                    if (backend) backend.save_theme_preference(val);
+                });
             });
+
+            function selectThemeValue(val) {
+                applyThemePreference(val);
+                themeOpts.forEach(opt => {
+                    const check = opt.querySelector('.check-icon');
+                    if (opt.getAttribute('data-value') === val) {
+                        check.classList.remove('hidden');
+                        themeLabel.innerText = opt.querySelector('span').innerText;
+                    } else {
+                        check.classList.add('hidden');
+                    }
+                });
+            }
+
+            // Custom Dropdown logic for Model
+            const modelTrigger = document.getElementById('custom-model-trigger');
+            const modelMenu = document.getElementById('custom-model-menu');
+            const modelArrow = document.getElementById('custom-model-arrow');
+            const modelLabel = document.getElementById('custom-model-label');
+
+            function toggleModelMenu(show) {
+                if (show) {
+                    modelMenu.classList.remove('hidden');
+                    modelArrow.classList.add('rotate-180');
+                    toggleThemeMenu(false);
+                } else {
+                    modelMenu.classList.add('hidden');
+                    modelArrow.classList.remove('rotate-180');
+                }
+            }
+
+            modelTrigger.addEventListener('click', (e) => {
+                e.stopPropagation();
+                toggleModelMenu(modelMenu.classList.contains('hidden'));
+            });
+
+            document.addEventListener('click', () => {
+                toggleThemeMenu(false);
+                toggleModelMenu(false);
+            });
+
+            function populateModelDropdown(modelsList, currentModel) {
+                modelMenu.innerHTML = '';
+                let itemsToRender = [];
+
+                if (!modelsList || modelsList.length === 0) {
+                    itemsToRender.push({ value: currentModel, text: currentModel + " (Ollama inactivo)" });
+                } else {
+                    let hasCurrent = false;
+                    modelsList.forEach(m => {
+                        itemsToRender.push({ value: m, text: m });
+                        if (m === currentModel) hasCurrent = true;
+                    });
+                    if (!hasCurrent && currentModel) {
+                        itemsToRender.push({ value: currentModel, text: currentModel + " (Falta descargar)" });
+                    }
+                }
+
+                modelLabel.innerText = currentModel || (itemsToRender[0] ? itemsToRender[0].text : "gemma");
+
+                itemsToRender.forEach(item => {
+                    const div = document.createElement('div');
+                    div.className = "px-4 py-2.5 hover:bg-surface-container-highest cursor-pointer text-sm text-on-surface transition-colors flex justify-between items-center";
+                    div.setAttribute('data-value', item.value);
+
+                    const spanText = document.createElement('span');
+                    spanText.innerText = item.text;
+                    div.appendChild(spanText);
+
+                    const checkSpan = document.createElement('span');
+                    checkSpan.className = "material-symbols-outlined text-sm text-primary check-icon" + (item.value === currentModel ? "" : " hidden");
+                    checkSpan.innerText = "check";
+                    div.appendChild(checkSpan);
+
+                    div.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        modelLabel.innerText = item.text;
+                        toggleModelMenu(false);
+
+                        modelMenu.querySelectorAll('.check-icon').forEach(c => c.classList.add('hidden'));
+                        checkSpan.classList.remove('hidden');
+
+                        if (backend) backend.save_model_name(item.value);
+                    });
+
+                    modelMenu.appendChild(div);
+                });
+            }
 
             if (typeof QWebChannel !== 'undefined') {
                 new QWebChannel(qt.webChannelTransport, function (channel) {
@@ -385,36 +502,12 @@
                     const dropZone = document.getElementById('drop-zone');
 
                     backend.get_theme_preference(function (pref) {
-                        applyThemePreference(pref);
-                        document.getElementById('theme-selector').value = pref;
+                        selectThemeValue(pref);
                     });
 
                     backend.get_ollama_models(function (modelsList) {
-                        var selector = document.getElementById('model-name-input');
-                        selector.innerHTML = '';
                         backend.get_model_name(function (currentModel) {
-                            if (!modelsList || modelsList.length === 0) {
-                                var opt = document.createElement('option');
-                                opt.value = currentModel;
-                                opt.innerText = currentModel + " (Ollama inactivo)";
-                                selector.appendChild(opt);
-                            } else {
-                                var hasCurrent = false;
-                                modelsList.forEach(m => {
-                                    var opt = document.createElement('option');
-                                    opt.value = m;
-                                    opt.innerText = m;
-                                    selector.appendChild(opt);
-                                    if (m === currentModel) hasCurrent = true;
-                                });
-                                if (!hasCurrent && currentModel) {
-                                    var opt = document.createElement('option');
-                                    opt.value = currentModel;
-                                    opt.innerText = currentModel + " (Falta descargar)";
-                                    selector.appendChild(opt);
-                                }
-                                selector.value = currentModel;
-                            }
+                            populateModelDropdown(modelsList, currentModel);
                         });
                     });
 
@@ -422,8 +515,6 @@
                         backend.open_file_dialog();
                     });
 
-
-                    // Eliminadas las escuchas a los botones de descarga
                     dropZone.addEventListener('dragover', function (e) { e.preventDefault(); dropZone.classList.add('dragover'); });
                     dropZone.addEventListener('dragleave', function (e) { e.preventDefault(); dropZone.classList.remove('dragover'); });
                     dropZone.addEventListener('drop', function (e) {
@@ -434,66 +525,56 @@
             }
         });
 
-
         function updateLog(time, message) {
             var logContainer = document.getElementById('process-logs');
             if (logContainer) {
-                var newLog = document.createElement('div');
-                newLog.className = 'flex gap-4 mb-3';
-                newLog.innerHTML = `<span class="font-label text-[10px] text-on-tertiary-container mt-1 bg-tertiary-container px-1.5 py-0.5 rounded h-max">${time}</span>
-                                <p class="text-sm text-on-surface leading-relaxed">${message}</p>`;
-                logContainer.prepend(newLog);
-            }
-        }
-
-        function updateProgress(pct, label) {
-            var container = document.getElementById('progress-container');
-            var status = document.getElementById('progress-status');
-            var fill = document.getElementById('progress-fill');
-            var pctText = document.getElementById('progress-percent');
-
-            if (container) {
-                container.classList.remove('hidden');
-                status.innerText = label;
-                fill.style.width = pct + '%';
-                pctText.innerText = pct + '%';
-
-                if (pct >= 100) {
-                    status.innerText = "Completado";
-                    // Desaparecer la barra tras 2 segundos si alcanzó el 100%
-                    setTimeout(() => {
-                        container.classList.add('hidden');
-                        fill.style.width = '0%';
-                        pctText.innerText = '0%';
-                    }, 2000);
-                }
+                var entry = document.createElement('div');
+                entry.className = "flex items-start space-x-2 text-on-surface-variant/90";
+                entry.innerHTML = `<span class="text-outline shrink-0">[${time}]</span><span>${message}</span>`;
+                logContainer.appendChild(entry);
+                logContainer.scrollTop = logContainer.scrollHeight;
             }
         }
 
         function clearLogs() {
             var logContainer = document.getElementById('process-logs');
-            if (logContainer) logContainer.innerHTML = '';
-            var progressContainer = document.getElementById('progress-container');
-            if (progressContainer) {
-                progressContainer.classList.add('hidden');
-                document.getElementById('progress-fill').style.width = '0%';
-                document.getElementById('progress-percent').innerText = '0%';
+            if (logContainer) {
+                logContainer.innerHTML = '<div class="text-outline">-- Registro limpiado --</div>';
             }
         }
 
-        function setSummary(markdown) {
-            var cc = document.getElementById('synthesis-content');
-            if (cc) {
-                cc.innerHTML = marked.parse(markdown);
+        function updateProgress(percent, statusText) {
+            var progressBar = document.getElementById('progress-bar');
+            var progressPct = document.getElementById('progress-percentage');
+            var progressLabel = document.getElementById('progress-status-label');
+
+            if (progressBar) progressBar.style.width = percent + '%';
+            if (progressPct) progressPct.innerText = percent + '%';
+            if (progressLabel && statusText) progressLabel.innerText = statusText;
+        }
+
+        function setSummary(markdownText) {
+            var container = document.getElementById('summary-content');
+            if (container) {
+                container.innerHTML = markdownText;
             }
         }
 
         function showOllamaWarning(show) {
-            const warning = document.getElementById('ollama-warning');
-            if (show) {
-                warning.classList.remove('hidden');
-            } else {
-                warning.classList.add('hidden');
+            var banner = document.getElementById('ollama-warning-banner');
+            var statusBadge = document.getElementById('ollama-status-badge');
+            var statusText = document.getElementById('ollama-status-text');
+
+            if (banner) {
+                if (show) {
+                    banner.classList.remove('hidden');
+                    if (statusBadge) {
+                        statusBadge.className = "flex items-center space-x-2 px-3 py-1.5 rounded-full bg-rose-500/10 border border-rose-500/30 text-xs text-rose-300";
+                    }
+                    if (statusText) statusText.innerText = "Ollama Desconectado";
+                } else {
+                    banner.classList.add('hidden');
+                }
             }
         }
     </script>
