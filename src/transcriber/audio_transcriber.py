@@ -1,6 +1,8 @@
 import os
 from pathlib import Path
+
 from faster_whisper import WhisperModel
+
 
 class AudioTranscriber:
     """
@@ -49,32 +51,32 @@ class AudioTranscriber:
         try:
             self._load_model()
             print(f"Iniciando transcripción de {audio_path.name}...")
-            
+
             # Vad_filter es esencial para evitar las alucinaciones en silencios
             segments, info = self.model.transcribe(str(audio_path), vad_filter=True, language="es")
-            
+
             total_duration = info.duration
             transcription_pieces = []
-            
+
             for segment in segments:
                 transcription_pieces.append(segment.text)
                 if progress_callback and total_duration > 0:
                     pct = int(min((segment.end / total_duration) * 100, 99))
                     progress_callback(pct)
-                    
+
             text = " ".join(transcription_pieces).strip()
-            print(f"Transcripción completada con éxito.")
+            print("Transcripción completada con éxito.")
             return text
-            
+
         except Exception as e:
             print(f"Aviso: El motor de transcripción encontró un problema: {e}")
             # Si el modo automático falla, forzamos CPU como último recurso
             if self.model is None or self.model.device != "cpu":
                 print("Cambiando a modo CPU para asegurar compatibilidad...")
                 self.model = WhisperModel(self.model_size, device="cpu", compute_type="int8")
-            
+
             segments, info = self.model.transcribe(str(audio_path), vad_filter=True, language="es")
-            
+
             total_duration = info.duration
             transcription_pieces = []
             for segment in segments:

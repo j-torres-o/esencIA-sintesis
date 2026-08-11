@@ -2,6 +2,7 @@ import os
 import sys
 from pathlib import Path
 
+
 def get_resource_path(relative_path: str) -> str:
     """
     Obtiene la ruta absoluta a un recurso, compatible con el entorno de desarrollo
