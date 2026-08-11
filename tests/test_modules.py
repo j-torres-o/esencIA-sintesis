@@ -11,13 +11,13 @@ from src.version import APP_ID, APP_NAME, __version__, get_version_info
 
 class TestVersionInfo:
     def test_version_constants(self):
-        assert __version__ == "0.2.1"
+        assert __version__ == "0.3.0"
         assert APP_NAME == "esencIA"
         assert APP_ID == "com.esencia.video-to-notes.v1"
 
     def test_get_version_info(self):
         info = get_version_info()
-        assert info["version"] == "0.2.1"
+        assert info["version"] == "0.3.0"
         assert info["name"] == "esencIA"
         assert info["app_id"] == "com.esencia.video-to-notes.v1"
 
