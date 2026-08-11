@@ -1,4 +1,4 @@
-# esencIA - Síntesis de Vídeo Académico (v0.2.0)
+# esencIA - Síntesis de Vídeo Académico (v0.2.1)
 
 esencIA es una herramienta de escritorio potente y elegante diseñada para convertir vídeos académicos (clases, conferencias, seminarios) en notas estructuradas y resúmenes ejecutivos utilizando inteligencia artificial **100% local**.
 

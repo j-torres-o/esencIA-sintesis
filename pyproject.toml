@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "video_to_notes_app"
-version = "0.2.0"
+version = "0.2.1"
 description = "esencIA - Síntesis de Vídeo Académico local usando Ollama y Whisper"
 readme = "README.md"
 authors = [
