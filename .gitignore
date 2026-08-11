@@ -1,10 +1,9 @@
-# [ Python ]
+# [ Python Build & Caches ]
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
 .Python
-env/
 build/
 develop-eggs/
 dist/
@@ -21,32 +20,36 @@ wheels/
 .installed.cfg
 *.egg
 .pytest_cache/
+.coverage
+htmlcov/
+.ruff_cache/
 
 # [ Virtual Environments ]
 venv/
 ENV/
+env/
 env.bak/
 venv.bak/
 
-# [ Environment Variables ]
+# [ Environment Variables & Secrets ]
 .env
+!.env.example
 
-# [ PyInstaller ]
-#  Usually these files are written by a python script, and contain the bin encodings
+# [ PyInstaller & Windows Packaging ]
 *.manifest
-# *.spec
 
-# [ IDEs ]
+# [ IDEs & Editors ]
 .vscode/
 .idea/
 *.swp
 *.swo
+*.sublime-project
+*.sublime-workspace
 
-# [ Project Specific ]
+# [ Application Runtime Outputs & Media ]
 outputs/
 graphify-out/
 scratch/
-.agents/
 *.mp3
 *.m4a
 *.wav
@@ -56,11 +59,8 @@ scratch/
 *.pdf
 *.log
 
-# [ Build & Packaging ]
-dist/
-build/
+# [ Build Artifacts & Installers ]
 *.exe
 *.msi
-
-# [ Inno Setup ]
-dist/installer/
+*.zip
+*.tar.gz
