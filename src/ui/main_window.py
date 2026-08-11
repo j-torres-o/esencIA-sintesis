@@ -22,7 +22,8 @@ from version import __version__
 
 class ProcessingThread(QThread):
     """
-    Hilo para realizar el procesamiento pesado sin bloquear la UI.
+    Hilo para realizar el procesamiento pesado sin bloquear la UI,
+    con soporte para reanudación por checkpoints y reintentos automáticos.
     """
     progress_signal = pyqtSignal(str)
     finished_signal = pyqtSignal(str)
@@ -40,44 +41,86 @@ class ProcessingThread(QThread):
             output_dir = Path(self.video_path).parent
             base_name = Path(self.video_path).stem
 
+            expected_audio_path = output_dir / f"{base_name}.mp3"
+            expected_transcription_file = output_dir / f"{base_name}_transcription.txt"
+            expected_summary_file = output_dir / f"{base_name}_summary.md"
+
             self.progress_signal.emit(f"Iniciando proceso a las {start_time.strftime('%H:%M:%S')}...")
 
-            # 1. Conversión
-            self.progress_signal.emit("Iniciando conversión de video a audio...")
-            converter = VideoConverter(output_dir=str(output_dir))
-            def conv_cb(pct):
-                self.progress_pct_signal.emit(pct, "Convirtiendo video a MP3...")
-            audio_path = converter.convert_mp4_to_mp3(self.video_path, conv_cb)
-            self.progress_pct_signal.emit(100, "Conversión de MP3 Completada")
-            time.sleep(0.5)
+            # 1. Conversión de video a audio (Checkpoint check)
+            if expected_audio_path.exists() and expected_audio_path.stat().st_size > 0:
+                audio_path = expected_audio_path
+                self.progress_signal.emit(f"📌 Artefacto de audio previo detectado: {audio_path.name}. Omitiendo conversión...")
+                self.progress_pct_signal.emit(100, "Conversión Omitida (Existente)")
+            else:
+                self.progress_signal.emit("Iniciando conversión de video a audio...")
+                converter = VideoConverter(output_dir=str(output_dir))
+                def conv_cb(pct):
+                    self.progress_pct_signal.emit(pct, "Convirtiendo video a MP3...")
+                audio_path = converter.convert_mp4_to_mp3(self.video_path, conv_cb)
+                self.progress_pct_signal.emit(100, "Conversión de MP3 Completada")
+            time.sleep(0.3)
 
-            # 2. Transcripción
-            self.progress_signal.emit("Iniciando transcripción de audio...")
-            transcriber = AudioTranscriber()
-            def trans_cb(pct):
-                self.progress_pct_signal.emit(pct, "Transcribiendo audio...")
-            transcription_text = transcriber.transcribe(str(audio_path), trans_cb)
-            self.progress_pct_signal.emit(100, "Transcripción Completada")
-            time.sleep(0.5)
+            # 2. Transcripción de audio a texto (Checkpoint check + Auto-Retry)
+            transcription_text = ""
+            if expected_transcription_file.exists() and expected_transcription_file.stat().st_size > 0:
+                self.progress_signal.emit(f"📌 Transcripción previa detectada: {expected_transcription_file.name}. Omitiendo transcripción...")
+                with open(expected_transcription_file, encoding="utf-8") as f:
+                    transcription_text = f.read()
+                self.progress_pct_signal.emit(100, "Transcripción Omitida (Existente)")
+            else:
+                self.progress_signal.emit("Iniciando transcripción de audio...")
+                transcriber = AudioTranscriber()
+                def trans_cb(pct):
+                    self.progress_pct_signal.emit(pct, "Transcribiendo audio...")
 
-            # Guardar la transcripcion cruda para auditoria INMEDIATAMENTE
-            transcription_file = output_dir / f"{base_name}_transcription.txt"
-            with open(transcription_file, "w", encoding="utf-8") as f:
-                f.write(transcription_text)
+                max_retries = 2
+                for attempt in range(1, max_retries + 1):
+                    try:
+                        if attempt > 1:
+                            self.progress_signal.emit(f"⚠️ Reintentando transcripción (Intento {attempt}/{max_retries})...")
+                        transcription_text = transcriber.transcribe(str(audio_path), trans_cb)
+                        break
+                    except Exception as e:
+                        if attempt == max_retries:
+                            raise e
+                        time.sleep(1)
 
-            # 3. Resumen
+                self.progress_pct_signal.emit(100, "Transcripción Completada")
+
+                # Guardar la transcripción para auditoría y futuros checkpoints
+                with open(expected_transcription_file, "w", encoding="utf-8") as f:
+                    f.write(transcription_text)
+
+            time.sleep(0.3)
+
+            # 3. Resumen con IA (Checkpoint check + Auto-Retry)
+            summary_md = ""
+            tokens_used = 0
             summarizer = GemmaSummarizer()
-            self.progress_signal.emit(f"Generando resumen con {summarizer.model_name}...")
 
-            summary_md, tokens_used = summarizer.summarize(transcription_text)
+            if expected_summary_file.exists() and expected_summary_file.stat().st_size > 0:
+                self.progress_signal.emit(f"📌 Resumen previo detectado: {expected_summary_file.name}. Cargando resumen guardado...")
+                with open(expected_summary_file, encoding="utf-8") as f:
+                    summary_md = f.read()
+            else:
+                self.progress_signal.emit(f"Generando resumen con {summarizer.model_name}...")
 
-            # 4. Guardar resultados Automáticos (Resumen MD)
-            summary_file = output_dir / f"{base_name}_summary.md"
-            with open(summary_file, "w", encoding="utf-8") as f:
-                f.write(summary_md)
+                max_retries = 2
+                for attempt in range(1, max_retries + 1):
+                    try:
+                        if attempt > 1:
+                            self.progress_signal.emit(f"⚠️ Reintentando generación con IA (Intento {attempt}/{max_retries})...")
+                        summary_md, tokens_used = summarizer.summarize(transcription_text)
+                        break
+                    except Exception as e:
+                        if attempt == max_retries:
+                            raise e
+                        time.sleep(1)
 
-            # Generar PDF automáticamente
-            # (se ha movido a la ejecución principal en on_finished para evitar crasheos por uso de motor GUI en hilos secundarios)
+                # Guardar el resumen generado en Markdown
+                with open(expected_summary_file, "w", encoding="utf-8") as f:
+                    f.write(summary_md)
 
             end_time = datetime.now()
             duration = end_time - start_time
@@ -85,16 +128,15 @@ class ProcessingThread(QThread):
             stats = {
                 "start_time": start_time.strftime("%H:%M:%S"),
                 "end_time": end_time.strftime("%H:%M:%S"),
-                "duration": str(duration).split('.')[0], # Remove microseconds
+                "duration": str(duration).split('.')[0],
                 "tokens": tokens_used
             }
             self.stats_signal.emit(stats)
-
-
             self.finished_signal.emit(summary_md)
 
         except Exception as e:
             self.error_signal.emit(str(e))
+
 
 class UIBackend(QObject):
     def __init__(self, main_window):
@@ -151,10 +193,10 @@ class UIBackend(QObject):
     def download_pdf(self):
         self.window.download_pdf()
 
-
     @pyqtSlot()
     def toggle_theme(self):
         self.window.toggle_theme()
+
 
 class SilentWebEnginePage(QWebEnginePage):
     def javaScriptConsoleMessage(self, level, message, lineNumber, sourceID):
@@ -162,9 +204,11 @@ class SilentWebEnginePage(QWebEnginePage):
             return
         super().javaScriptConsoleMessage(level, message, lineNumber, sourceID)
 
+
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
+        self.current_video_path = ""
         self.init_ui()
 
     def init_ui(self):
@@ -219,34 +263,30 @@ class MainWindow(QMainWindow):
     def eventFilter(self, source, event):
         if event.type() == QEvent.Type.Drop:
             mime = event.mimeData()
-            if mime and mime.hasUrls():
-                file_path = mime.urls()[0].toLocalFile()
-                self.backend.on_file_dropped(file_path)
-                return True # Evita que el navegador web parsee o descargue el archivo
+            if mime.hasUrls():
+                urls = mime.urls()
+                if urls:
+                    file_path = urls[0].toLocalFile()
+                    if file_path.lower().endswith('.mp4'):
+                        self.start_processing(file_path)
+                        return True
+        elif event.type() == QEvent.Type.DragEnter:
+            mime = event.mimeData()
+            if mime.hasUrls():
+                event.acceptProposedAction()
+                return True
         return super().eventFilter(source, event)
-
-    def run_js(self, script):
-        self.browser.page().runJavaScript(script)
-
-    def toggle_theme(self):
-        if self.current_theme == "light":
-            self.current_theme = "dark"
-            self.run_js("toggleDarkMode(true);")
-        else:
-            self.current_theme = "light"
-            self.run_js("toggleDarkMode(false);")
 
     def start_processing(self, file_path):
         self.current_video_path = file_path
+        model_name = self.backend.get_model_name()
 
-        # Pre-Flight Checks Ollama Health & Model
-        model_name = self.backend.config.get("gemma_model_name")
-
+        # Verificar si el modelo configurado existe en el servidor local de Ollama
         try:
             response = requests.get("http://localhost:11434/api/tags", timeout=2)
             if response.status_code == 200:
-                models = [m['name'] for m in response.json().get('models', [])]
-                if model_name not in models and f"{model_name}:latest" not in models:
+                installed_models = [m['name'] for m in response.json().get('models', [])]
+                if model_name not in installed_models:
                     safe_name = str(model_name).replace('\\', '\\\\').replace("'", "\\'")
                     self.run_js(f"updateLog('{datetime.now().strftime('%H:%M')}','❌ ERROR: El modelo {safe_name} no está instalado en tu servidor Ollama local.');")
                     return
@@ -282,7 +322,7 @@ class MainWindow(QMainWindow):
         safe_summary = summary.replace('\\', '\\\\').replace('`', '\\`').replace('$', '\\$')
         self.run_js(f"setSummary(`{safe_summary}`);")
 
-        # Generar PDF en el hilo nativo GUI (seguro)
+        # Generar PDF en el hilo nativo GUI
         try:
             output_dir = Path(self.current_video_path).parent
             base_name = Path(self.current_video_path).stem
@@ -299,9 +339,7 @@ class MainWindow(QMainWindow):
         except Exception as e:
             self.on_error(f"Error generando PDF final: {e}")
 
-
         self.run_js(f"updateLog('{datetime.now().strftime('%H:%M')}', '¡Todo listo!');")
-
 
     def on_error(self, error_message):
         safe_msg = error_message.replace('\\', '\\\\').replace("'", "\\'").replace('"', '\\"').replace('\n',' ')
@@ -310,6 +348,10 @@ class MainWindow(QMainWindow):
     def on_stats(self, stats):
         self.on_progress(f"Tokens consumidos: {stats['tokens']}")
         self.on_progress(f"Tiempo total: {stats['duration']}")
+
+    def run_js(self, js_code):
+        self.browser.page().runJavaScript(js_code)
+
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

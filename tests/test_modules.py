@@ -5,6 +5,7 @@ import pytest
 from src.converter.video_converter import VideoConverter
 from src.summarizer.gemma_summarizer import GemmaSummarizer
 from src.transcriber.audio_transcriber import AudioTranscriber
+from src.ui.main_window import ProcessingThread
 from src.version import APP_ID, APP_NAME, __version__, get_version_info
 
 
@@ -118,3 +119,36 @@ class TestGemmaSummarizer:
 
         assert summary_md == "# Resumen Exec\nTexto de prueba"
         assert tokens == 150
+
+class TestProcessingThreadCheckpoints:
+    @patch("src.ui.main_window.GemmaSummarizer")
+    @patch("src.ui.main_window.AudioTranscriber")
+    @patch("src.ui.main_window.VideoConverter")
+    def test_checkpoint_resume_all_exist(self, mock_converter_cls, mock_transcriber_cls, mock_summarizer_cls, tmp_path):
+        video_file = tmp_path / "clase.mp4"
+        video_file.write_bytes(b"dummy video")
+
+        audio_file = tmp_path / "clase.mp3"
+        audio_file.write_bytes(b"dummy audio")
+
+        txt_file = tmp_path / "clase_transcription.txt"
+        txt_file.write_text("Transcripcion previamente realizada", encoding="utf-8")
+
+        md_file = tmp_path / "clase_summary.md"
+        md_file.write_text("# Resumen Previo\nContenido guardado", encoding="utf-8")
+
+        thread = ProcessingThread(str(video_file))
+
+        messages = []
+        thread.progress_signal.connect(lambda msg: messages.append(msg))
+        finished_res = []
+        thread.finished_signal.connect(lambda res: finished_res.append(res))
+
+        thread.run()
+
+        mock_converter_cls.assert_not_called()
+        mock_transcriber_cls.assert_not_called()
+        assert any("Artefacto de audio previo detectado" in m for m in messages)
+        assert any("Transcripción previa detectada" in m for m in messages)
+        assert any("Resumen previo detectado" in m for m in messages)
+        assert finished_res[0] == "# Resumen Previo\nContenido guardado"
