@@ -1,0 +1,24 @@
+name: Solicitud de Funcionalidad (Feature Request)
+description: Sugiere una nueva idea o característica para esencIA.
+title: "[FEAT]: "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: ¿Tu solicitud está relacionada con un problema?
+      description: Una explicación clara de cuál es el problema o la limitación actual.
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: Descripción de la solución propuesta
+      description: Explicación detallada de cómo imaginas que funcione la nueva característica.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternativas consideradas
+      description: Si consideraste otras opciones o soluciones alternativas.

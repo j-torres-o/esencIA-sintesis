@@ -1,6 +1,7 @@
-import os
 import openai
+
 from utils.config_manager import ConfigManager
+
 
 class GemmaSummarizer:
     """
@@ -16,7 +17,7 @@ class GemmaSummarizer:
         config = ConfigManager()
 
         self.api_key = api_key or "ollama"
-        
+
         # Configuración del cliente OpenAI compatible con Ollama/LM Studio
         self.client = openai.OpenAI(
             base_url=config.get("gemma_api_base_url"),

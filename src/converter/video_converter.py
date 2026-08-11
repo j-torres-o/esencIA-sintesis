@@ -1,13 +1,14 @@
-from moviepy import VideoFileClip
-import os
 from pathlib import Path
+
 import proglog
+from moviepy import VideoFileClip
+
 
 class MyBarLogger(proglog.ProgressBarLogger):
     def __init__(self, on_progress):
         super().__init__()
         self.on_progress = on_progress
-        
+
     def bars_callback(self, bar, attr, value, old_value=None):
         if bar == 'chunk' and self.bars[bar]['total'] > 0:
             percentage = int((value / self.bars[bar]['total']) * 100)
@@ -51,11 +52,11 @@ class VideoConverter:
         try:
             print(f"Iniciando conversión de {video_path.name} a {audio_filename}...")
             video = VideoFileClip(str(video_path))
-            
+
             logger = 'bar'
             if progress_callback:
                 logger = MyBarLogger(progress_callback)
-                
+
             video.audio.write_audiofile(str(audio_path), logger=logger)
             video.close()
             print(f"Conversión completada con éxito: {audio_path}")

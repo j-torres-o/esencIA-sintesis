@@ -13,9 +13,9 @@ Las claves de API y secretos se mantienen en el archivo .env del proyecto.
 """
 
 import json
+import logging
 import os
 import sys
-import logging
 from pathlib import Path
 
 logger = logging.getLogger(__name__)
@@ -127,7 +127,7 @@ class ConfigManager:
             return
 
         try:
-            with open(self._config_path, "r", encoding="utf-8") as f:
+            with open(self._config_path, encoding="utf-8") as f:
                 loaded = json.load(f)
             if not isinstance(loaded, dict):
                 raise ValueError("El archivo de configuración no contiene un objeto JSON válido.")

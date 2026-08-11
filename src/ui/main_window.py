@@ -1,22 +1,23 @@
-import sys
 import os
+import sys
 import time
 from datetime import datetime
 from pathlib import Path
-from PyQt6.QtWidgets import QApplication, QMainWindow, QFileDialog
+
+import requests
+from PyQt6.QtCore import QEvent, QObject, QThread, QUrl, pyqtSignal, pyqtSlot
 from PyQt6.QtGui import QIcon
-from PyQt6.QtCore import Qt, QThread, pyqtSignal, pyqtSlot, QObject, QUrl, QEvent
-from PyQt6.QtWebEngineWidgets import QWebEngineView
-from PyQt6.QtWebEngineCore import QWebEngineSettings, QWebEnginePage
 from PyQt6.QtWebChannel import QWebChannel
+from PyQt6.QtWebEngineCore import QWebEnginePage, QWebEngineSettings
+from PyQt6.QtWebEngineWidgets import QWebEngineView
+from PyQt6.QtWidgets import QApplication, QFileDialog, QMainWindow
+
 from converter.video_converter import VideoConverter
-from transcriber import AudioTranscriber
 from summarizer import GemmaSummarizer
+from transcriber import AudioTranscriber
 from utils.config_manager import ConfigManager
 from utils.resource_handler import get_resource_path
 from version import __version__
-import dotenv
-import requests
 
 
 class ProcessingThread(QThread):
@@ -38,9 +39,9 @@ class ProcessingThread(QThread):
             start_time = datetime.now()
             output_dir = Path(self.video_path).parent
             base_name = Path(self.video_path).stem
-            
+
             self.progress_signal.emit(f"Iniciando proceso a las {start_time.strftime('%H:%M:%S')}...")
-            
+
             # 1. Conversión
             self.progress_signal.emit("Iniciando conversión de video a audio...")
             converter = VideoConverter(output_dir=str(output_dir))
@@ -58,7 +59,7 @@ class ProcessingThread(QThread):
             transcription_text = transcriber.transcribe(str(audio_path), trans_cb)
             self.progress_pct_signal.emit(100, "Transcripción Completada")
             time.sleep(0.5)
-            
+
             # Guardar la transcripcion cruda para auditoria INMEDIATAMENTE
             transcription_file = output_dir / f"{base_name}_transcription.txt"
             with open(transcription_file, "w", encoding="utf-8") as f:
@@ -67,20 +68,20 @@ class ProcessingThread(QThread):
             # 3. Resumen
             summarizer = GemmaSummarizer()
             self.progress_signal.emit(f"Generando resumen con {summarizer.model_name}...")
-            
+
             summary_md, tokens_used = summarizer.summarize(transcription_text)
 
             # 4. Guardar resultados Automáticos (Resumen MD)
             summary_file = output_dir / f"{base_name}_summary.md"
             with open(summary_file, "w", encoding="utf-8") as f:
                 f.write(summary_md)
-                
+
             # Generar PDF automáticamente
             # (se ha movido a la ejecución principal en on_finished para evitar crasheos por uso de motor GUI en hilos secundarios)
-            
+
             end_time = datetime.now()
             duration = end_time - start_time
-            
+
             stats = {
                 "start_time": start_time.strftime("%H:%M:%S"),
                 "end_time": end_time.strftime("%H:%M:%S"),
@@ -89,7 +90,7 @@ class ProcessingThread(QThread):
             }
             self.stats_signal.emit(stats)
 
-            
+
             self.finished_signal.emit(summary_md)
 
         except Exception as e:
@@ -120,7 +121,7 @@ class UIBackend(QObject):
             if response.status_code == 200:
                 return [m['name'] for m in response.json().get('models', [])]
             return []
-        except:
+        except Exception:
             return []
 
     @pyqtSlot(str)
@@ -178,16 +179,16 @@ class MainWindow(QMainWindow):
         # Setup WebEngineView
         self.browser = QWebEngineView()
         self.browser.setPage(SilentWebEnginePage(self.browser))
-        
+
         # Permitir carga de scripts y fuentes externas desde archivos locales
         self.browser.settings().setAttribute(QWebEngineSettings.WebAttribute.LocalContentCanAccessRemoteUrls, True)
         self.browser.settings().setAttribute(QWebEngineSettings.WebAttribute.LocalContentCanAccessFileUrls, True)
-        
+
         # Interceptar Drag & Drop a nivel nativo
         self.browser.installEventFilter(self)
         if self.browser.focusProxy():
             self.browser.focusProxy().installEventFilter(self)
-        
+
         # Setup WebChannel
         self.channel = QWebChannel()
         self.backend = UIBackend(self)
@@ -202,7 +203,7 @@ class MainWindow(QMainWindow):
 
         self.current_theme = "dark"
         self.current_summary_md = ""
-        
+
         # Verificar Ollama al iniciar (después de que el browser esté listo)
         self.browser.loadFinished.connect(self.initial_health_check)
 
@@ -212,7 +213,7 @@ class MainWindow(QMainWindow):
             response = requests.get("http://localhost:11434/api/tags", timeout=1)
             if response.status_code != 200:
                 self.run_js("showOllamaWarning(true);")
-        except:
+        except Exception:
             self.run_js("showOllamaWarning(true);")
 
     def eventFilter(self, source, event):
@@ -237,10 +238,10 @@ class MainWindow(QMainWindow):
 
     def start_processing(self, file_path):
         self.current_video_path = file_path
-        
+
         # Pre-Flight Checks Ollama Health & Model
         model_name = self.backend.config.get("gemma_model_name")
-        
+
         try:
             response = requests.get("http://localhost:11434/api/tags", timeout=2)
             if response.status_code == 200:
@@ -259,7 +260,7 @@ class MainWindow(QMainWindow):
         safe_path = Path(file_path).name.replace('\\', '\\\\').replace("'", "\\'")
         self.run_js(f"updateLog('{datetime.now().strftime('%H:%M')}','Iniciando procesamiento de {safe_path}');")
         self.run_js("clearLogs();")
-        
+
         self.thread = ProcessingThread(file_path)
         self.thread.progress_signal.connect(self.on_progress)
         self.thread.progress_pct_signal.connect(self.update_progress_pct)
@@ -280,25 +281,25 @@ class MainWindow(QMainWindow):
         self.current_summary_md = summary
         safe_summary = summary.replace('\\', '\\\\').replace('`', '\\`').replace('$', '\\$')
         self.run_js(f"setSummary(`{safe_summary}`);")
-        
+
         # Generar PDF en el hilo nativo GUI (seguro)
         try:
             output_dir = Path(self.current_video_path).parent
             base_name = Path(self.current_video_path).stem
             pdf_file = output_dir / f"{base_name}_summary.pdf"
-            
-            from PyQt6.QtGui import QTextDocument, QPdfWriter
+
+            from PyQt6.QtGui import QPdfWriter, QTextDocument
             doc = QTextDocument()
             doc.setMarkdown(summary)
             doc.setDefaultStyleSheet("body { font-family: Arial, sans-serif; font-size: 14pt; } h1 { color: #3F51B5; }")
             writer = QPdfWriter(str(pdf_file))
             doc.print(writer)
-            
+
             self.on_progress(f"¡Proceso automatizado finalizado! Medios físicos guardados en: {output_dir}")
         except Exception as e:
             self.on_error(f"Error generando PDF final: {e}")
-            
-            
+
+
         self.run_js(f"updateLog('{datetime.now().strftime('%H:%M')}', '¡Todo listo!');")
 
 
