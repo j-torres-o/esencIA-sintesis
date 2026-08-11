@@ -37,3 +37,8 @@ python src/main.py
    - Crear siempre una rama temática (*feature/bugfix/refactor branch*), por ejemplo: `feat/nombre-funcionalidad`, `fix/correccion-bug`, `refactor/mejora-estrucutral`.
    - Utilizar mensajes de commit bajo la especificación **Conventional Commits** (`feat:`, `fix:`, `refactor:`, `style:`, `test:`, `ci:`, `docs:`, `build:`).
    - Preparar las ramas para su integración hacia `main` mediante **Pull Requests (PR)** sometidos a verificación CI/CD.
+6. **Regla de Versionamiento OBLIGATORIA (SemVer & GitHub Releases)**:
+   - Todo cambio o Pull Request DEBE actualizar la versión en [src/version.py](file:///c:/Projects/video_to_notes_app/src/version.py) ANTES de fusionar a `main`:
+     - **Corrección de errores (`fix:`)**: Incrementar versión `PATCH` (ej. `v0.2.1` -> `v0.2.2`).
+     - **Nueva funcionalidad (`feat:`)**: Incrementar versión `MINOR` (ej. `v0.2.x` -> `v0.3.0`).
+   - Tras la fusión de un PR a `main`, se DEBE publicar/actualizar la **Release Oficial en GitHub** etiquetada con la nueva versión y sus correspondientes *Release Notes*.
