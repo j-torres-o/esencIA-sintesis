@@ -37,8 +37,19 @@ python src/main.py
    - Crear siempre una rama temática (*feature/bugfix/refactor branch*), por ejemplo: `feat/nombre-funcionalidad`, `fix/correccion-bug`, `refactor/mejora-estrucutral`.
    - Utilizar mensajes de commit bajo la especificación **Conventional Commits** (`feat:`, `fix:`, `refactor:`, `style:`, `test:`, `ci:`, `docs:`, `build:`).
    - Preparar las ramas para su integración hacia `main` mediante **Pull Requests (PR)** sometidos a verificación CI/CD.
-6. **Regla de Versionamiento OBLIGATORIA (SemVer & GitHub Releases)**:
-   - Todo cambio o Pull Request DEBE actualizar la versión en [src/version.py](file:///c:/Projects/video_to_notes_app/src/version.py) ANTES de fusionar a `main`:
-     - **Corrección de errores (`fix:`)**: Incrementar versión `PATCH` (ej. `v0.2.1` -> `v0.2.2`).
-     - **Nueva funcionalidad (`feat:`)**: Incrementar versión `MINOR` (ej. `v0.2.x` -> `v0.3.0`).
-   - Tras la fusión de un PR a `main`, se DEBE publicar/actualizar la **Release Oficial en GitHub** etiquetada con la nueva versión y sus correspondientes *Release Notes*.
+6. **Estrategia Profesional de Versionamiento y Releases**:
+   - **Flujo de Integración Cotidiana**:
+     - Las ramas temáticas (`feat/`, `fix/`, `refactor/`) se fusionan a `main` mediante PR con CI en verde.
+     - **NO** es obligatorio incrementar la versión ni publicar una Release por cada PR individual o corrección menor.
+   - **Criterios para una Release Oficial en GitHub**:
+     - Se publica una Release únicamente al completar un **Hito Significativo (Milestone)** que aporte valor tangible (ej. nuevas funcionalidades integradas, mejoras acumuladas de UX/rendimiento) o un lote consolidado de correcciones críticas (`PATCH`).
+     - **Semantic Versioning (`MAJOR.MINOR.PATCH`)**:
+       - `PATCH` (ej. `v0.4.0` -> `v0.4.1`): Lote de correcciones de estabilidad y bugs.
+       - `MINOR` (ej. `v0.4.0` -> `v0.5.0`): Hito con nuevas características (ej. nuevos motores ASR, rediseño, refactors mayores).
+       - `MAJOR`: Cambios disruptivos o arquitectónicos completos.
+     - **Empaquetado Obligatorio**: Toda Release en GitHub debe incluir el binario instalador compilado para Windows (`.\scripts\build_exe.ps1`) y notas de versión detalladas (*Release Notes*).
+   - **Procedimiento de Corte de Release**:
+     1. Crear rama `chore/release-vX.Y.Z`.
+     2. Actualizar versión en [src/version.py](file:///c:/Projects/video_to_notes_app/src/version.py) y registrar notas de cambios.
+     3. Fusionar a `main` tras pasar CI.
+     4. Generar el instalador `.exe` y publicar la Release oficial en GitHub.

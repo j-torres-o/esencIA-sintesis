@@ -24,7 +24,8 @@ logger = logging.getLogger(__name__)
 DEFAULT_CONFIG: dict = {
     "theme_preference": "system",          # "light" | "dark" | "system"
     "gemma_model_name": "gemma",           # Nombre del modelo Ollama activo
-    "gemma_api_base_url": "http://localhost:11434/v1",  # URL base de la API
+    "gemma_api_base_url": "http://localhost:11434",     # URL base de la API de Ollama
+    "ollama_num_ctx": 65536,               # Ventana de contexto por defecto (64K tokens)
 }
 
 
