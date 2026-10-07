@@ -26,6 +26,7 @@ DEFAULT_CONFIG: dict = {
     "gemma_model_name": "gemma",           # Nombre del modelo Ollama activo
     "gemma_api_base_url": "http://localhost:11434",     # URL base de la API de Ollama
     "ollama_num_ctx": 65536,               # Ventana de contexto por defecto (64K tokens)
+    "transcriber_engine": "parakeet_redux",  # "parakeet_redux" | "whisper_large_v3_turbo"
 }
 
 
