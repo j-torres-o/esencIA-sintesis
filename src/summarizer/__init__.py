@@ -1,3 +1,3 @@
-from .gemma_summarizer import GemmaSummarizer
+from .ollama_summarizer import GemmaSummarizer, OllamaSummarizer
 
-__all__ = ["GemmaSummarizer"]
+__all__ = ["OllamaSummarizer", "GemmaSummarizer"]

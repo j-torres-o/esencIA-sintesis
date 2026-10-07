@@ -13,7 +13,7 @@ from PyQt6.QtWebEngineWidgets import QWebEngineView
 from PyQt6.QtWidgets import QApplication, QFileDialog, QMainWindow
 
 from converter.video_converter import VideoConverter
-from summarizer import GemmaSummarizer
+from summarizer import OllamaSummarizer
 from transcriber import AudioTranscriber
 from utils.config_manager import ConfigManager
 from utils.resource_handler import get_resource_path
@@ -97,7 +97,7 @@ class ProcessingThread(QThread):
             # 3. Resumen con IA (Checkpoint check + Auto-Retry)
             summary_md = ""
             tokens_used = 0
-            summarizer = GemmaSummarizer()
+            summarizer = OllamaSummarizer()
 
             if expected_summary_file.exists() and expected_summary_file.stat().st_size > 0:
                 self.progress_signal.emit(f"📌 Resumen previo detectado: {expected_summary_file.name}. Cargando resumen guardado...")

@@ -3,7 +3,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from src.converter.video_converter import VideoConverter
-from src.summarizer.gemma_summarizer import GemmaSummarizer
+from src.summarizer.ollama_summarizer import OllamaSummarizer
 from src.transcriber.audio_transcriber import AudioTranscriber
 from src.ui.main_window import ProcessingThread
 from src.version import APP_ID, APP_NAME, __version__, get_version_info
@@ -88,40 +88,53 @@ class TestAudioTranscriber:
         assert result_text == "Hola mundo"
         assert len(progress_history) == 2
 
-class TestGemmaSummarizer:
-    @patch("src.summarizer.gemma_summarizer.ConfigManager")
-    @patch("openai.OpenAI")
-    def test_summarize_empty_text(self, mock_openai, mock_config_cls):
-        summarizer = GemmaSummarizer(api_key="fake_key")
+class TestOllamaSummarizer:
+    @patch("src.summarizer.ollama_summarizer.ConfigManager")
+    @patch("requests.post")
+    def test_summarize_empty_text(self, mock_requests_post, mock_config_cls):
+        summarizer = OllamaSummarizer()
         result, tokens = summarizer.summarize("")
         assert result == "No se proporcionó texto para resumir."
         assert tokens == 0
 
-    @patch("src.summarizer.gemma_summarizer.ConfigManager")
-    @patch("openai.OpenAI")
-    def test_summarize_success(self, mock_openai, mock_config_cls):
+    @patch("src.summarizer.ollama_summarizer.ConfigManager")
+    @patch("requests.post")
+    def test_summarize_success(self, mock_requests_post, mock_config_cls):
         mock_config_instance = MagicMock()
         mock_config_instance.get.side_effect = lambda key: {
-            "gemma_api_base_url": "http://localhost:11434/v1",
+            "gemma_api_base_url": "http://localhost:11434",
             "gemma_model_name": "gemma"
         }.get(key, "")
         mock_config_cls.return_value = mock_config_instance
 
-        mock_client = MagicMock()
         mock_response = MagicMock()
-        mock_response.choices[0].message.content = "# Resumen Exec\nTexto de prueba"
-        mock_response.usage.total_tokens = 150
-        mock_client.chat.completions.create.return_value = mock_response
-        mock_openai.return_value = mock_client
+        mock_response.status_code = 200
+        mock_response.json.return_value = {
+            "response": "# Resumen Exec\nTexto de prueba",
+            "eval_count": 100,
+            "prompt_eval_count": 50
+        }
+        mock_requests_post.return_value = mock_response
 
-        summarizer = GemmaSummarizer(api_key="fake_key")
+        summarizer = OllamaSummarizer()
         summary_md, tokens = summarizer.summarize("Este es el texto transcrito de la clase.")
 
         assert summary_md == "# Resumen Exec\nTexto de prueba"
         assert tokens == 150
 
+    @patch("src.summarizer.ollama_summarizer.ConfigManager")
+    @patch("requests.post")
+    def test_summarize_connection_error(self, mock_requests_post, mock_config_cls):
+        import requests
+        mock_requests_post.side_effect = requests.exceptions.ConnectionError("Connection refused")
+
+        summarizer = OllamaSummarizer()
+        with pytest.raises(ConnectionError) as exc_info:
+            summarizer.summarize("Texto de prueba")
+        assert "No se pudo conectar al servidor local de Ollama" in str(exc_info.value)
+
 class TestProcessingThreadCheckpoints:
-    @patch("src.ui.main_window.GemmaSummarizer")
+    @patch("src.ui.main_window.OllamaSummarizer")
     @patch("src.ui.main_window.AudioTranscriber")
     @patch("src.ui.main_window.VideoConverter")
     def test_checkpoint_resume_all_exist(self, mock_converter_cls, mock_transcriber_cls, mock_summarizer_cls, tmp_path):
