@@ -126,6 +126,22 @@
             background-color: var(--surface-container-highest);
             border-color: var(--primary);
         }
+
+        /* Estilos explícitos para menús desplegables en WebEngine (evitar fondo blanco del user-agent) */
+        .custom-dropdown-menu {
+            background-color: var(--surface-container-highest) !important;
+            border-color: var(--outline-variant) !important;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.3) !important;
+        }
+
+        .custom-dropdown-opt {
+            background-color: transparent !important;
+            color: var(--on-surface) !important;
+        }
+
+        .custom-dropdown-opt:hover {
+            background-color: var(--surface) !important;
+        }
     </style>
     <script id="tailwind-config">
         tailwind.config = {
@@ -303,16 +319,16 @@
                             <span id="custom-theme-label">Tema del Sistema</span>
                             <span class="material-symbols-outlined text-sm transition-transform duration-200" id="custom-theme-arrow">expand_more</span>
                         </button>
-                        <div id="custom-theme-menu" class="hidden absolute left-0 right-0 mt-1 bg-surface-container-highest border border-outline-variant/60 rounded-lg shadow-2xl z-[150] max-h-48 overflow-y-auto py-1">
-                            <div class="custom-theme-opt px-4 py-2.5 hover:bg-surface cursor-pointer text-sm text-on-surface transition-colors flex justify-between items-center" data-value="system">
+                        <div id="custom-theme-menu" class="hidden absolute left-0 right-0 mt-1 custom-dropdown-menu border border-outline-variant/60 rounded-lg shadow-2xl z-[150] max-h-48 overflow-y-auto py-1">
+                            <div class="custom-dropdown-opt custom-theme-opt px-4 py-2.5 cursor-pointer text-sm text-on-surface transition-colors flex justify-between items-center" data-value="system">
                                 <span>Tema del Sistema</span>
                                 <span class="material-symbols-outlined text-sm text-primary check-icon hidden">check</span>
                             </div>
-                            <div class="custom-theme-opt px-4 py-2.5 hover:bg-surface cursor-pointer text-sm text-on-surface transition-colors flex justify-between items-center" data-value="light">
+                            <div class="custom-dropdown-opt custom-theme-opt px-4 py-2.5 cursor-pointer text-sm text-on-surface transition-colors flex justify-between items-center" data-value="light">
                                 <span>Modo Claro</span>
                                 <span class="material-symbols-outlined text-sm text-primary check-icon hidden">check</span>
                             </div>
-                            <div class="custom-theme-opt px-4 py-2.5 hover:bg-surface cursor-pointer text-sm text-on-surface transition-colors flex justify-between items-center" data-value="dark">
+                            <div class="custom-dropdown-opt custom-theme-opt px-4 py-2.5 cursor-pointer text-sm text-on-surface transition-colors flex justify-between items-center" data-value="dark">
                                 <span>Modo Oscuro</span>
                                 <span class="material-symbols-outlined text-sm text-primary check-icon hidden">check</span>
                             </div>
@@ -328,7 +344,7 @@
                             <span id="custom-model-label" class="truncate">Cargando modelos...</span>
                             <span class="material-symbols-outlined text-sm transition-transform duration-200" id="custom-model-arrow">expand_more</span>
                         </button>
-                        <div id="custom-model-menu" class="hidden absolute left-0 right-0 mt-1 bg-surface-container-highest border border-outline-variant/60 rounded-lg shadow-2xl z-[150] max-h-48 overflow-y-auto py-1">
+                        <div id="custom-model-menu" class="hidden absolute left-0 right-0 mt-1 custom-dropdown-menu border border-outline-variant/60 rounded-lg shadow-2xl z-[150] max-h-48 overflow-y-auto py-1">
                         </div>
                     </div>
                     <p class="text-[11px] text-on-surface-variant mt-2 font-label">Selecciona un modelo detectado en tu servidor local de Ollama.</p>
@@ -459,7 +475,11 @@
 
             document.getElementById('about-btn').addEventListener('click', () => {
                 if (backend && backend.get_app_info) {
-                    backend.get_app_info(function (info) {
+                    backend.get_app_info(function (infoRes) {
+                        let info = infoRes;
+                        if (typeof infoRes === 'string') {
+                            try { info = JSON.parse(infoRes); } catch(e) {}
+                        }
                         if (info) {
                             if (info.name) document.getElementById('about-app-name').innerText = info.name;
                             if (info.version) document.getElementById('about-app-version').innerText = 'v' + info.version;
@@ -567,7 +587,7 @@
 
                 itemsToRender.forEach(item => {
                     const div = document.createElement('div');
-                    div.className = "px-4 py-2.5 hover:bg-surface cursor-pointer text-sm text-on-surface transition-colors flex justify-between items-center";
+                    div.className = "custom-dropdown-opt px-4 py-2.5 cursor-pointer text-sm text-on-surface transition-colors flex justify-between items-center";
                     div.setAttribute('data-value', item.value);
 
                     const spanText = document.createElement('span');

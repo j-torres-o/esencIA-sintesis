@@ -152,3 +152,21 @@ class TestProcessingThreadCheckpoints:
         assert any("Transcripción previa detectada" in m for m in messages)
         assert any("Resumen previo detectado" in m for m in messages)
         assert finished_res[0] == "# Resumen Previo\nContenido guardado"
+
+
+class TestUIBackendInfo:
+    def test_get_app_info_returns_valid_json_string(self):
+        import json
+        from unittest.mock import MagicMock
+
+        from src.ui.main_window import UIBackend
+
+        mock_window = MagicMock()
+        backend = UIBackend(mock_window)
+        raw_info = backend.get_app_info()
+
+        assert isinstance(raw_info, str)
+        parsed = json.loads(raw_info)
+        assert parsed["name"] == APP_NAME
+        assert parsed["version"] == __version__
+        assert parsed["app_id"] == APP_ID

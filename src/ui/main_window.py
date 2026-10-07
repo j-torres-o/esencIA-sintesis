@@ -185,9 +185,10 @@ class UIBackend(QObject):
         else:
             self.window.run_js(f"updateLog('{datetime.now().strftime('%H:%M')}','Error: El archivo debe ser un MP4.');")
 
-    @pyqtSlot(result=dict)
+    @pyqtSlot(result=str)
     def get_app_info(self):
-        return get_version_info()
+        import json
+        return json.dumps(get_version_info())
 
     @pyqtSlot()
     def download_summary(self):
