@@ -69,10 +69,13 @@ class ProcessingThread(QThread):
                     transcription_text = f.read()
                 self.progress_pct_signal.emit(100, "Transcripción Omitida (Existente)")
             else:
-                self.progress_signal.emit("Iniciando transcripción de audio...")
-                transcriber = AudioTranscriber()
+                config = ConfigManager()
+                engine_name = config.get("transcriber_engine") or "parakeet_redux"
+                engine_label = "Parakeet Redux" if engine_name == "parakeet_redux" else "Whisper Large-V3-Turbo"
+                self.progress_signal.emit(f"Iniciando transcripción con motor {engine_label}...")
+                transcriber = AudioTranscriber(engine_type=engine_name)
                 def trans_cb(pct):
-                    self.progress_pct_signal.emit(pct, "Transcribiendo audio...")
+                    self.progress_pct_signal.emit(pct, f"Transcribiendo ({engine_label})...")
 
                 max_retries = 2
                 for attempt in range(1, max_retries + 1):
@@ -169,6 +172,14 @@ class UIBackend(QObject):
     @pyqtSlot(str)
     def save_model_name(self, model_name):
         self.config.set("gemma_model_name", model_name)
+
+    @pyqtSlot(result=str)
+    def get_transcriber_engine(self):
+        return self.config.get("transcriber_engine") or "parakeet_redux"
+
+    @pyqtSlot(str)
+    def save_transcriber_engine(self, engine):
+        self.config.set("transcriber_engine", engine)
 
     @pyqtSlot()
     def open_file_dialog(self):

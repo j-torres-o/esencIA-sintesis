@@ -349,6 +349,34 @@
                     </div>
                     <p class="text-[11px] text-on-surface-variant mt-2 font-label">Selecciona un modelo detectado en tu servidor local de Ollama.</p>
                 </div>
+
+                <!-- Custom Dropdown: Motor de Transcripción (ASR Local) -->
+                <div>
+                    <label class="block font-label text-xs uppercase tracking-widest text-on-surface-variant mb-2">Motor de Transcripción (ASR Local)</label>
+                    <div class="relative" id="custom-asr-dropdown">
+                        <button id="custom-asr-trigger" type="button" class="w-full bg-surface border border-outline-variant/60 rounded-lg p-3 text-on-surface font-body outline-none focus:border-primary transition-colors flex justify-between items-center cursor-pointer">
+                            <span id="custom-asr-label" class="truncate">Parakeet Redux (Ultra-rápido, 178MB)</span>
+                            <span class="material-symbols-outlined text-sm transition-transform duration-200" id="custom-asr-arrow">expand_more</span>
+                        </button>
+                        <div id="custom-asr-menu" class="hidden absolute left-0 right-0 mt-1 custom-dropdown-menu border border-outline-variant/60 rounded-lg shadow-2xl z-[150] max-h-48 overflow-y-auto py-1">
+                            <div class="custom-dropdown-opt custom-asr-opt px-4 py-2.5 cursor-pointer text-sm text-on-surface transition-colors flex justify-between items-center" data-value="parakeet_redux">
+                                <div>
+                                    <div class="font-medium">Parakeet Redux</div>
+                                    <div class="text-[11px] text-on-surface-variant">Ultra-rápido (>100x CPU), 178MB, ES/EN</div>
+                                </div>
+                                <span class="material-symbols-outlined text-sm text-primary check-icon hidden">check</span>
+                            </div>
+                            <div class="custom-dropdown-opt custom-asr-opt px-4 py-2.5 cursor-pointer text-sm text-on-surface transition-colors flex justify-between items-center" data-value="whisper_large_v3_turbo">
+                                <div>
+                                    <div class="font-medium">Whisper Large-V3-Turbo</div>
+                                    <div class="text-[11px] text-on-surface-variant">Máxima fidelidad y code-switching ES/EN</div>
+                                </div>
+                                <span class="material-symbols-outlined text-sm text-primary check-icon hidden">check</span>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-[11px] text-on-surface-variant mt-2 font-label">Motor local para convertir audio a texto con detección automática de idioma.</p>
+                </div>
             </div>
         </div>
     </div>
@@ -561,9 +589,61 @@
                 toggleModelMenu(modelMenu.classList.contains('hidden'));
             });
 
+            // Custom Dropdown logic for ASR Engine
+            const asrTrigger = document.getElementById('custom-asr-trigger');
+            const asrMenu = document.getElementById('custom-asr-menu');
+            const asrArrow = document.getElementById('custom-asr-arrow');
+            const asrLabel = document.getElementById('custom-asr-label');
+            const asrOpts = document.querySelectorAll('.custom-asr-opt');
+
+            function toggleAsrMenu(show) {
+                if (show) {
+                    asrMenu.classList.remove('hidden');
+                    asrArrow.classList.add('rotate-180');
+                    toggleThemeMenu(false);
+                    toggleModelMenu(false);
+                } else {
+                    asrMenu.classList.add('hidden');
+                    asrArrow.classList.remove('rotate-180');
+                }
+            }
+
+            if (asrTrigger) {
+                asrTrigger.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    toggleAsrMenu(asrMenu.classList.contains('hidden'));
+                });
+            }
+
+            function selectAsrValue(val) {
+                asrOpts.forEach(opt => {
+                    const check = opt.querySelector('.check-icon');
+                    if (opt.getAttribute('data-value') === val) {
+                        check.classList.remove('hidden');
+                        const mainTitle = opt.querySelector('.font-medium');
+                        if (mainTitle) asrLabel.innerText = mainTitle.innerText;
+                    } else {
+                        check.classList.add('hidden');
+                    }
+                });
+            }
+
+            asrOpts.forEach(opt => {
+                opt.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const val = opt.getAttribute('data-value');
+                    selectAsrValue(val);
+                    toggleAsrMenu(false);
+                    if (backend && backend.save_transcriber_engine) {
+                        backend.save_transcriber_engine(val);
+                    }
+                });
+            });
+
             document.addEventListener('click', () => {
                 toggleThemeMenu(false);
                 toggleModelMenu(false);
+                toggleAsrMenu(false);
             });
 
             function populateModelDropdown(modelsList, currentModel) {
@@ -622,6 +702,12 @@
                     backend.get_theme_preference(function (pref) {
                         selectThemeValue(pref);
                     });
+
+                    if (backend.get_transcriber_engine) {
+                        backend.get_transcriber_engine(function (engine) {
+                            if (engine) selectAsrValue(engine);
+                        });
+                    }
 
                     backend.get_ollama_models(function (modelsList) {
                         backend.get_model_name(function (currentModel) {

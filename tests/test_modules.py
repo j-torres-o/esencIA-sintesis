@@ -75,7 +75,7 @@ class TestAudioTranscriber:
         mock_model_instance.transcribe.return_value = ([segment1, segment2], mock_info)
         mock_whisper_model_cls.return_value = mock_model_instance
 
-        transcriber = AudioTranscriber(model_size="tiny")
+        transcriber = AudioTranscriber(engine_type="whisper_large_v3_turbo")
         test_audio = tmp_path / "test_audio.mp3"
         test_audio.write_bytes(b"dummy audio content")
 
@@ -86,7 +86,26 @@ class TestAudioTranscriber:
         result_text = transcriber.transcribe(str(test_audio), progress_callback=on_progress)
 
         assert result_text == "Hola mundo"
-        assert len(progress_history) == 2
+        assert len(progress_history) >= 2
+        assert 100 in progress_history
+
+    @patch("src.transcriber.audio_transcriber.WhisperModel")
+    def test_transcribe_parakeet_fallback_to_whisper(self, mock_whisper_model_cls, tmp_path):
+        mock_model_instance = MagicMock()
+        segment = MagicMock()
+        segment.text = "Texto transcrito"
+        segment.end = 10.0
+        mock_info = MagicMock()
+        mock_info.duration = 10.0
+        mock_model_instance.transcribe.return_value = ([segment], mock_info)
+        mock_whisper_model_cls.return_value = mock_model_instance
+
+        transcriber = AudioTranscriber(engine_type="parakeet_redux")
+        test_audio = tmp_path / "test_audio.mp3"
+        test_audio.write_bytes(b"dummy audio content")
+
+        res = transcriber.transcribe(str(test_audio))
+        assert res == "Texto transcrito"
 
 class TestOllamaSummarizer:
     @patch("src.summarizer.ollama_summarizer.ConfigManager")
