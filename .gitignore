@@ -50,6 +50,8 @@ venv.bak/
 outputs/
 graphify-out/
 scratch/
+scratch_*.json
+*.payload.json
 *.mp3
 *.m4a
 *.wav
