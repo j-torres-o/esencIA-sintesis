@@ -64,6 +64,7 @@ Write-Host "`n[Paso 2/2] Buscando compilador de Inno Setup (ISCC.exe)..." -Foreg
 
 $IsccPaths = @(
     "ISCC.exe",
+    "${env:LOCALAPPDATA}\Programs\Inno Setup 6\ISCC.exe",
     "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe",
     "${env:ProgramFiles}\Inno Setup 6\ISCC.exe",
     "${env:ProgramFiles(x86)}\Inno Setup 5\ISCC.exe",
