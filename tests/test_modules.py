@@ -58,15 +58,26 @@ class TestAudioTranscriber:
         with pytest.raises(FileNotFoundError):
             transcriber.transcribe("non_existent_file.mp3")
 
+    def test_format_timestamp(self):
+        from src.transcriber.audio_transcriber import format_timestamp, get_optimal_cpu_threads
+        assert format_timestamp(0.0) == "00:00"
+        assert format_timestamp(45.2) == "00:45"
+        assert format_timestamp(65.0) == "01:05"
+        assert format_timestamp(3600.0) == "01:00:00"
+        assert format_timestamp(3665.0) == "01:01:05"
+        assert get_optimal_cpu_threads() >= 1
+
     @patch("src.transcriber.audio_transcriber.WhisperModel")
     def test_transcribe_success(self, mock_whisper_model_cls, tmp_path):
         mock_model_instance = MagicMock()
 
         segment1 = MagicMock()
         segment1.text = "Hola"
+        segment1.start = 0.0
         segment1.end = 5.0
         segment2 = MagicMock()
         segment2.text = "mundo"
+        segment2.start = 5.0
         segment2.end = 10.0
 
         mock_info = MagicMock()
@@ -85,15 +96,19 @@ class TestAudioTranscriber:
 
         result_text = transcriber.transcribe(str(test_audio), progress_callback=on_progress)
 
-        assert result_text == "Hola mundo"
+        assert result_text == "[00:00] Hola\n[00:05] mundo"
         assert len(progress_history) >= 2
         assert 100 in progress_history
+
+        result_without_ts = transcriber.transcribe(str(test_audio), include_timestamps=False)
+        assert result_without_ts == "Hola mundo"
 
     @patch("src.transcriber.audio_transcriber.WhisperModel")
     def test_transcribe_parakeet_fallback_to_whisper(self, mock_whisper_model_cls, tmp_path):
         mock_model_instance = MagicMock()
         segment = MagicMock()
         segment.text = "Texto transcrito"
+        segment.start = 0.0
         segment.end = 10.0
         mock_info = MagicMock()
         mock_info.duration = 10.0
@@ -105,7 +120,33 @@ class TestAudioTranscriber:
         test_audio.write_bytes(b"dummy audio content")
 
         res = transcriber.transcribe(str(test_audio))
-        assert res == "Texto transcrito"
+        assert res == "[00:00] Texto transcrito"
+
+    @patch("src.transcriber.audio_transcriber.WhisperModel")
+    def test_transcribe_with_batched_pipeline(self, mock_whisper_model_cls, tmp_path):
+        mock_model_instance = MagicMock()
+        mock_whisper_model_cls.return_value = mock_model_instance
+
+        transcriber = AudioTranscriber(engine_type="whisper_large_v3_turbo")
+        test_audio = tmp_path / "test_audio.mp3"
+        test_audio.write_bytes(b"dummy audio content")
+
+        mock_batched = MagicMock()
+        segment = MagicMock()
+        segment.text = "Inferencia acelerada"
+        segment.start = 12.0
+        segment.end = 18.0
+        mock_info = MagicMock()
+        mock_info.duration = 18.0
+        mock_batched.transcribe.return_value = ([segment], mock_info)
+
+        transcriber.batched_pipeline = mock_batched
+        res = transcriber.transcribe(str(test_audio))
+
+        assert res == "[00:12] Inferencia acelerada"
+        mock_batched.transcribe.assert_called_once()
+        assert mock_batched.transcribe.call_args[1]["batch_size"] == 16
+
 
 class TestOllamaSummarizer:
     @patch("src.summarizer.ollama_summarizer.ConfigManager")
